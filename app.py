@@ -1,60 +1,38 @@
 import streamlit as st
 from supabase import create_client
-import json
 
-st.set_page_config(page_title="Supabase GIS API", layout="wide")
+st.set_page_config(
+    page_title="Sitios - Supabase API",
+    layout="wide"
+)
 
-st.title("Supabase + GIS (API)")
+st.title("Tabla sitios (Supabase API)")
 
+# Crear cliente Supabase
 supabase = create_client(
     st.secrets["SUPABASE_URL"],
     st.secrets["SUPABASE_ANON_KEY"],
 )
 
-# 🔁 CAMBIAR por tu tabla GIS real
-TABLE_NAME = "parcelas"
-
 try:
+    # Consultar la tabla real
     response = (
         supabase
-        .table(TABLE_NAME)
-        .select("id, geom")
-        .limit(5)
+        .table("sitios")
+        .select("*")
+        .limit(20)
         .execute()
     )
 
     st.success("✅ Conectado a Supabase API")
 
     if response.data:
-        st.subheader("Datos GeoJSON")
-        st.json(response.data)
-
-        # Ejemplo: exportar a archivo GeoJSON
-        geojson = {
-            "type": "FeatureCollection",
-            "features": [
-                {
-                    "type": "Feature",
-                    "geometry": row["geom"],
-                    "properties": {
-                        "id": row["id"]
-                    },
-                }
-                for row in response.data
-                if row["geom"] is not None
-            ],
-        }
-
-        st.download_button(
-            "⬇️ Descargar GeoJSON",
-            json.dumps(geojson),
-            file_name="datos.geojson",
-            mime="application/geo+json",
-        )
-
+        st.subheader("Registros de la tabla `sitios`")
+        st.dataframe(response.data)
+        st.caption(f"Mostrando {len(response.data)} de 92 registros")
     else:
-        st.warning("No hay datos o falta policy RLS")
+        st.warning("La tabla existe pero no se devolvieron datos.")
 
 except Exception as e:
-    st.error("❌ Error")
-    st.code(str(e))
+    st.error("❌ Error accediendo a la tabla `sitios`")
+    st.code(str(e), language="text")
