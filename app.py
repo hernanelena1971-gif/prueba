@@ -1,39 +1,60 @@
 import streamlit as st
 from supabase import create_client
+import json
 
-st.set_page_config(page_title="Supabase API Test", layout="wide")
+st.set_page_config(page_title="Supabase GIS API", layout="wide")
 
-st.title("Prueba de conexión a Supabase (API)")
+st.title("Supabase + GIS (API)")
 
-# Crear cliente Supabase usando secrets
 supabase = create_client(
     st.secrets["SUPABASE_URL"],
     st.secrets["SUPABASE_ANON_KEY"],
 )
 
-# 🔁 CAMBIÁ este nombre por tu tabla real
-TABLE_NAME = "mi_tabla"
+# 🔁 CAMBIAR por tu tabla GIS real
+TABLE_NAME = "parcelas"
 
 try:
     response = (
         supabase
         .table(TABLE_NAME)
-        .select("*")
-        .limit(10)
+        .select("id, geom")
+        .limit(5)
         .execute()
     )
 
-    st.success("✅ Conectado correctamente a Supabase API")
+    st.success("✅ Conectado a Supabase API")
 
     if response.data:
-        st.subheader(f"Datos de la tabla `{TABLE_NAME}`")
-        st.dataframe(response.data)
-    else:
-        st.warning(
-            "La tabla existe pero no hay datos "
-            "o no hay permisos (revisar RLS)."
+        st.subheader("Datos GeoJSON")
+        st.json(response.data)
+
+        # Ejemplo: exportar a archivo GeoJSON
+        geojson = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": row["geom"],
+                    "properties": {
+                        "id": row["id"]
+                    },
+                }
+                for row in response.data
+                if row["geom"] is not None
+            ],
+        }
+
+        st.download_button(
+            "⬇️ Descargar GeoJSON",
+            json.dumps(geojson),
+            file_name="datos.geojson",
+            mime="application/geo+json",
         )
 
+    else:
+        st.warning("No hay datos o falta policy RLS")
+
 except Exception as e:
-    st.error("❌ Error al conectar con Supabase")
-    st.code(str(e), language="text")
+    st.error("❌ Error")
+    st.code(str(e))
