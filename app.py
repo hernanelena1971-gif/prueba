@@ -2,20 +2,18 @@ import streamlit as st
 from supabase import create_client
 
 st.set_page_config(
-    page_title="Sitios - Supabase API",
+    page_title="ios - Supabase API",
     layout="wide"
 )
 
 st.title("Tabla sitios (Supabase API)")
 
-# Crear cliente Supabase
 supabase = create_client(
     st.secrets["SUPABASE_URL"],
     st.secrets["SUPABASE_ANON_KEY"],
 )
 
 try:
-    # Consultar la tabla real
     response = (
         supabase
         .table("sitios")
