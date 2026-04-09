@@ -1,22 +1,39 @@
 import streamlit as st
-import psycopg2
+from supabase import create_client
 
-conn = psycopg2.connect(
-    host=st.secrets["DB_HOST"],
-    port=st.secrets["DB_PORT"],
-    dbname=st.secrets["DB_NAME"],
-    user=st.secrets["DB_USER"],
-    password=st.secrets["DB_PASSWORD"],
-    sslmode="require",
+st.set_page_config(page_title="Supabase API Test", layout="wide")
+
+st.title("Prueba de conexión a Supabase (API)")
+
+# Crear cliente Supabase usando secrets
+supabase = create_client(
+    st.secrets["SUPABASE_URL"],
+    st.secrets["SUPABASE_ANON_KEY"],
 )
 
-cur = conn.cursor()
-cur.execute("SELECT current_database(), current_user;")
-db, user = cur.fetchone()
+# 🔁 CAMBIÁ este nombre por tu tabla real
+TABLE_NAME = "mi_tabla"
 
-st.success("✅ Conectado a Supabase")
-st.write("Base:", db)
-st.write("Usuario:", user)
+try:
+    response = (
+        supabase
+        .table(TABLE_NAME)
+        .select("*")
+        .limit(10)
+        .execute()
+    )
 
-cur.close()
-conn.close()
+    st.success("✅ Conectado correctamente a Supabase API")
+
+    if response.data:
+        st.subheader(f"Datos de la tabla `{TABLE_NAME}`")
+        st.dataframe(response.data)
+    else:
+        st.warning(
+            "La tabla existe pero no hay datos "
+            "o no hay permisos (revisar RLS)."
+        )
+
+except Exception as e:
+    st.error("❌ Error al conectar con Supabase")
+    st.code(str(e), language="text")
