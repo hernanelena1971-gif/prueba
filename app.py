@@ -52,6 +52,7 @@ if st.session_state.session is None:
 # --------------------------------------------------
 # USUARIO AUTENTICADO
 # --------------------------------------------------
+supabase.postgrest.auth(st.session_state.session.access_token)
 st.title("🗺️ Sitios y análisis de suelos")
 
 if st.button("🚪 Cerrar sesión"):
