@@ -4,3 +4,5 @@ supabase
 folium
 streamlit-folium
 shapely
+pandas
+reportlab
