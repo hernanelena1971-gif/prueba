@@ -4,8 +4,7 @@ import folium
 from streamlit_folium import st_folium
 import pandas as pd
 from supabase import create_client, ClientOptions
-
-from io import BytesIOf
+from io import BytesIO
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 
