@@ -20,8 +20,10 @@ def get_supabase_client():
         return create_client(
             st.secrets["SUPABASE_URL"],
             st.secrets["SUPABASE_ANON_KEY"],
-            headers={
-                "Authorization": f"Bearer {st.session_state.session.access_token}"
+            options={
+                "headers": {
+                    "Authorization": f"Bearer {st.session_state.session.access_token}"
+                }
             }
         )
     else:
@@ -31,7 +33,6 @@ def get_supabase_client():
         )
 
 supabase = get_supabase_client()
-
 
 # --------------------------------------------------
 # Estado de sesión
