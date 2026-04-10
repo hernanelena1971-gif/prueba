@@ -50,7 +50,7 @@ usuario_id = usuario_sel["id"]
 sitios_resp = (
     supabase
     .table("sitios")
-    .select("id,geom,usuario_id")
+    .select("id,usuario_id")
     .eq("usuario_id", usuario_id)
     .execute()
 )
