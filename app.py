@@ -165,14 +165,19 @@ st_folium(m, width=1200, height=550)
 # --------------------------------------------------
 st.subheader(f"🧪 Análisis – Sitio {sitio_sel['codigo_sitio']}")
 
-data = (
-    supabase
-    .rpc(
-        "public.get_informe_suelo_por_sitio",
-        {"p_sitio_id": int(sitio_id)}
-    )
-    .execute()
-).data
+try:
+    data = (
+        supabase
+        .rpc(
+            "public.get_informe_suelo_por_sitio",
+            {"p_sitio_id": int(sitio_id)}
+        )
+        .execute()
+    ).data
+except Exception as e:
+    st.error("❌ Error ejecutando el informe")
+    st.code(str(e))
+    st.stop()
 
 if not data:
     st.info("No hay análisis disponibles para este sitio.")
