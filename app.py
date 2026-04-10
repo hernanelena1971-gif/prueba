@@ -134,7 +134,7 @@ st_folium(m, width=1200, height=550)
 # --------------------------------------------------
 st.subheader(f"🧪 Análisis – Sitio {sitio_sel['codigo_sitio']}")
 
-# muestras del sitio
+# 1️⃣ Buscar muestras del sitio
 muestras = (
     supabase
     .table("muestras")
@@ -143,12 +143,15 @@ muestras = (
     .execute()
 ).data
 
+# ✅ SI NO HAY MUESTRAS → NO SE CONSULTA ANALISIS
 if not muestras:
-    st.info("Este sitio no tiene muestras.")
+    st.info("Este sitio no tiene muestras cargadas.")
     st.stop()
 
+# 2️⃣ IDs de muestras
 muestra_ids = [m["id"] for m in muestras]
 
+# 3️⃣ Buscar análisis SOLO si hay IDs
 analisis = (
     supabase
     .table("analisis_suelos")
@@ -157,8 +160,8 @@ analisis = (
     .execute()
 ).data
 
-if analisis:
+if not analisis:
+    st.info("No hay análisis disponibles para las muestras de este sitio.")
+else:
     df = pd.DataFrame(analisis)
     st.dataframe(df, use_container_width=True)
-else:
-    st.info("No hay análisis cargados para este sitio.")
