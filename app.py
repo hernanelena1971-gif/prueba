@@ -169,7 +169,7 @@ try:
     data = (
         supabase
         .rpc(
-            "public.get_informe_suelo_por_sitio",
+            "get_informe_suelo_por_sitio",
             {"p_sitio_id": int(sitio_id)}
         )
         .execute()
