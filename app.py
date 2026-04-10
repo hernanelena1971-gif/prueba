@@ -2,8 +2,10 @@ import streamlit as st
 from supabase import create_client
 import folium
 from streamlit_folium import st_folium
-from shapely.geometry import shape
 
+# --------------------------------------------------
+# Configuración de la página
+# --------------------------------------------------
 st.set_page_config(
     page_title="Sitios por usuario",
     layout="wide"
@@ -11,17 +13,17 @@ st.set_page_config(
 
 st.title("🗺️ Sitios por usuario")
 
-# ============================
-# Supabase client
-# ============================
+# --------------------------------------------------
+# Conexión a Supabase (API)
+# --------------------------------------------------
 supabase = create_client(
     st.secrets["SUPABASE_URL"],
     st.secrets["SUPABASE_ANON_KEY"],
 )
 
-# ============================
-# 1. Cargar usuarios
-# ============================
+# --------------------------------------------------
+# Cargar usuarios
+# --------------------------------------------------
 usuarios_resp = (
     supabase
     .table("usuarios")
@@ -44,13 +46,13 @@ usuario_sel = st.selectbox(
 
 usuario_id = usuario_sel["id"]
 
-# ============================
-# 2. Cargar sitios del usuario
-# ============================
+# --------------------------------------------------
+# Cargar sitios del usuario (lat / lon)
+# --------------------------------------------------
 sitios_resp = (
     supabase
     .table("sitios")
-    .select("id,usuario_id")
+    .select("id,latitud,longitud")
     .eq("usuario_id", usuario_id)
     .execute()
 )
@@ -58,18 +60,18 @@ sitios_resp = (
 sitios = sitios_resp.data
 
 st.markdown("---")
-st.subheader(f"📍 Sitios de {usuario_sel['nombre']}")
 
 if not sitios:
     st.warning("Este usuario no tiene sitios cargados.")
     st.stop()
 
-# ============================
-# 3. Crear mapa
-# ============================
-# Tomamos el primer punto para centrar el mapa
-first_geom = shape(sitios[0]["geom"])
-center = [first_geom.y, first_geom.x]
+# --------------------------------------------------
+# Crear mapa centrado en el primer sitio
+# --------------------------------------------------
+center = [
+    sitios[0]["latitud"],
+    sitios[0]["longitud"]
+]
 
 m = folium.Map(
     location=center,
@@ -77,32 +79,27 @@ m = folium.Map(
     tiles="OpenStreetMap"
 )
 
-# ============================
-# 4. Agregar marcadores
-# ============================
+# --------------------------------------------------
+# Agregar marcadores
+# --------------------------------------------------
 for s in sitios:
-    if s["geom"] is None:
+    if s["latitud"] is None or s["longitud"] is None:
         continue
 
-    geom = shape(s["geom"])
-
     folium.Marker(
-        location=[geom.y, geom.x],
-        popup=folium.Popup(
-            f"<b>Sitio ID {s['id']}</b>",
-            max_width=300
-        ),
+        location=[s["latitud"], s["longitud"]],
+        popup=f"ID sitio: {s['id']}",
         tooltip=f"Sitio {s['id']}",
         icon=folium.Icon(color="green", icon="info-sign")
     ).add_to(m)
 
-# ============================
-# 5. Mostrar mapa
-# ============================
-st_folium(m, width=1100, height=600)
+# --------------------------------------------------
+# Mostrar mapa
+# --------------------------------------------------
+st_folium(m, width=1150, height=600)
 
-# ============================
-# 6. Tabla (opcional y útil)
-# ============================
+# --------------------------------------------------
+# Tabla opcional de sitios
+# --------------------------------------------------
 with st.expander("📋 Ver tabla de sitios"):
     st.dataframe(sitios)
