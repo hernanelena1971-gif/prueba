@@ -136,11 +136,10 @@ st.subheader(f"🧪 Análisis – Sitio {sitio_sel['codigo_sitio']}")
 
 analisis = (
     supabase
-    .table("analisis_suelos")
-    .select(
-        "*, muestras!inner(id, fecha, sitio_id)"
+    .rpc(
+        "get_analisis_por_sitio",
+        {"p_sitio_id": sitio_id}
     )
-    .eq("muestras.sitio_id", sitio_id)
     .execute()
 ).data
 
