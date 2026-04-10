@@ -3,6 +3,8 @@ from supabase import create_client
 import folium
 from streamlit_folium import st_folium
 import pandas as pd
+from supabase import create_client, ClientOptions
+
 
 # --------------------------------------------------
 # Configuración general
@@ -20,11 +22,11 @@ def get_supabase_client():
         return create_client(
             st.secrets["SUPABASE_URL"],
             st.secrets["SUPABASE_ANON_KEY"],
-            options={
-                "headers": {
+            ClientOptions(
+                headers={
                     "Authorization": f"Bearer {st.session_state.session.access_token}"
                 }
-            }
+            )
         )
     else:
         return create_client(
