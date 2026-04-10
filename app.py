@@ -44,8 +44,10 @@ if st.session_state.session is None:
             st.session_state.session = res.session
             st.success("Ingreso correcto")
             st.rerun()
-        except Exception:
-            st.error("Usuario o contraseña incorrectos")
+        except Exception as e:
+            st.error("Error de login")
+            st.code(str(e))
+
 
     st.stop()
 
