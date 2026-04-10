@@ -101,7 +101,9 @@ if st.session_state.session is None:
 # --------------------------------------------------
 # USUARIO AUTENTICADO
 # --------------------------------------------------
-
+if "sitio_id" not in st.session_state:
+    st.session_state.sitio_id = None
+    
 st.title("🗺️ Sitios y análisis de suelos")
 
 if st.button("🚪 Cerrar sesión"):
@@ -129,10 +131,13 @@ if not sitios:
 sitio_sel = st.selectbox(
     "📍 Seleccione un sitio",
     sitios,
-    format_func=lambda s: s["codigo_sitio"]
+    format_func=lambda s: s["codigo_sitio"],
+    index=0 if st.session_state.sitio_id is None else
+    next(i for i, s in enumerate(sitios) if s["id"] == st.session_state.sitio_id)
 )
 
-sitio_id = sitio_sel["id"]
+st.session_state.sitio_id = sitio_sel["id"]
+
 
 # --------------------------------------------------
 # MAPA (siempre visible)
@@ -158,19 +163,31 @@ for s in sitios:
         icon=folium.Icon(color=color, icon="info-sign")
     ).add_to(m)
 
-st_folium(m, width=1200, height=550)
+mapa = st_folium(m, width=1200, height=550)
+if mapa and mapa.get("last_object_clicked"):
+    lat = mapa["last_object_clicked"]["lat"]
+    lng = mapa["last_object_clicked"]["lng"]
+
+    for s in sitios:
+        if abs(s["latitud"] - lat) < 0.0001 and abs(s["longitud"] - lng) < 0.0001:
+            if st.session_state.sitio_id != s["id"]:
+                st.session_state.sitio_id = s["id"]
+                st.rerun()
 
 # --------------------------------------------------
 # ANALISIS DEL SITIO SELECCIONADO
 # --------------------------------------------------
 st.subheader(f"🧪 Análisis – Sitio {sitio_sel['codigo_sitio']}")
+if st.session_state.sitio_id is None:
+    st.info("Seleccioná un sitio en el mapa")
+    st.stop()
 
 try:
     data = (
         supabase
         .rpc(
             "get_informe_suelo_por_sitio",
-            {"p_sitio_id": int(sitio_id)}
+            {"p_sitio_id": int(st.session_state.sitio_id)}
         )
         .execute()
     ).data
