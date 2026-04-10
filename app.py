@@ -168,7 +168,7 @@ st.subheader(f"🧪 Análisis – Sitio {sitio_sel['codigo_sitio']}")
 data = (
     supabase
     .rpc(
-        "get_informe_suelo_por_sitio",
+        "public.get_informe_suelo_por_sitio",
         {"p_sitio_id": int(sitio_id)}
     )
     .execute()
