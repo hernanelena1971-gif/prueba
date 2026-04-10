@@ -142,18 +142,24 @@ st.session_state.sitio_id = sitio_sel["id"]
 # --------------------------------------------------
 # MAPA (siempre visible)
 # --------------------------------------------------
-center = [sitio_sel["latitud"], sitio_sel["longitud"]]
 
-m = folium.Map(
-    location=center,
-    zoom_start=8,
-    tiles="OpenStreetMap"
-)
+lats = [s["latitud"] for s in sitios if s["latitud"] is not None]
+lons = [s["longitud"] for s in sitios if s["longitud"] is not None]
+
+bounds = [[min(lats), min(lons)], [max(lats), max(lons)]]
+
+m = folium.Map(tiles="OpenStreetMap")
+m.fit_bounds(bounds)
+
+# Recentrar si hay sitio seleccionado
+if st.session_state.sitio_id is not None:
+    sitio_activo = next(
+        s for s in sitios if s["id"] == st.session_state.sitio_id
+    )
+    m.location = [sitio_activo["latitud"], sitio_activo["longitud"]]
+    m.zoom_start = 14
 
 for s in sitios:
-    if s["latitud"] is None or s["longitud"] is None:
-        continue
-
     color = "red" if s["id"] == st.session_state.sitio_id else "blue"
 
     folium.Marker(
@@ -164,15 +170,7 @@ for s in sitios:
     ).add_to(m)
 
 mapa = st_folium(m, width=1200, height=550)
-if mapa and mapa.get("last_object_clicked"):
-    lat = mapa["last_object_clicked"]["lat"]
-    lng = mapa["last_object_clicked"]["lng"]
 
-    for s in sitios:
-        if abs(s["latitud"] - lat) < 0.0001 and abs(s["longitud"] - lng) < 0.0001:
-            if st.session_state.sitio_id != s["id"]:
-                st.session_state.sitio_id = s["id"]
-                st.rerun()
 
 # --------------------------------------------------
 # ANALISIS DEL SITIO SELECCIONADO
