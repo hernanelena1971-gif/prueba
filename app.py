@@ -169,11 +169,21 @@ for s in sitios:
     ).add_to(m)
 
 mapa = st_folium(m, width=1200, height=550)
+# --------------------------------------
+# Detectar clic en marcador y actualizar sitio
+# --------------------------------------
+if mapa and mapa.get("last_object_clicked"):
+    lat = mapa["last_object_clicked"]["lat"]
+    lng = mapa["last_object_clicked"]["lng"]
+
+    for s in sitios:
+        if abs(s["latitud"] - lat) < 0.0001 and abs(s["longitud"] - lng) < 0.0001:
+            if st.session_state.sitio_id != s["id"]:
+                st.session_state.sitio_id = s["id"]
+                st.rerun()
 
 
-# --------------------------------------------------
-# ANALISIS DEL SITIO SELECCIONADO
-# --------------------------------------------------
+
 # --------------------------------------------------
 # ANALISIS DEL SITIO SELECCIONADO
 # --------------------------------------------------
