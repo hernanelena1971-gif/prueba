@@ -5,7 +5,7 @@ from streamlit_folium import st_folium
 import pandas as pd
 from supabase import create_client, ClientOptions
 
-from io import BytesIO
+from io import BytesIOf
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 
@@ -175,11 +175,24 @@ mapa = st_folium(m, width=1200, height=550)
 # --------------------------------------------------
 # ANALISIS DEL SITIO SELECCIONADO
 # --------------------------------------------------
-st.subheader(f"🧪 Análisis – Sitio {sitio_sel['codigo_sitio']}")
+# --------------------------------------------------
+# ANALISIS DEL SITIO SELECCIONADO
+# --------------------------------------------------
+
+# ✅ GUARD: si todavía no hay sitio elegido
 if st.session_state.sitio_id is None:
-    st.info("Seleccioná un sitio en el mapa")
+    st.info("Seleccioná un sitio en el mapa para ver el análisis.")
     st.stop()
 
+# ✅ ACÁ VA sitio_activo (ESTE es el lugar correcto)
+sitio_activo = next(
+    s for s in sitios if s["id"] == st.session_state.sitio_id
+)
+
+# ✅ A PARTIR DE ACÁ usás sitio_activo
+st.subheader(f"🧪 Análisis – Sitio {sitio_activo['codigo_sitio']}")
+
+# ✅ RPC (no cambia)
 try:
     data = (
         supabase
