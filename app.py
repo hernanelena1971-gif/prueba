@@ -50,7 +50,7 @@ usuario_id = usuario_sel["id"]
 sitios_resp = (
     supabase
     .table("sitios")
-    .select("id,nombre,geom")
+    .select("id,geom,usuario_id")
     .eq("usuario_id", usuario_id)
     .execute()
 )
@@ -89,10 +89,10 @@ for s in sitios:
     folium.Marker(
         location=[geom.y, geom.x],
         popup=folium.Popup(
-            f"<b>{s['nombre']}</b><br>ID sitio: {s['id']}",
+            f"<b>Sitio ID {s['id']}</b>",
             max_width=300
         ),
-        tooltip=s["nombre"],
+        tooltip=f"Sitio {s['id']}",
         icon=folium.Icon(color="green", icon="info-sign")
     ).add_to(m)
 
