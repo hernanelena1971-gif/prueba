@@ -2,19 +2,18 @@ import streamlit as st
 from supabase import create_client
 import folium
 from streamlit_folium import st_folium
+import pandas as pd
 
 # --------------------------------------------------
-# Configuración de la página
+# Configuración general
 # --------------------------------------------------
 st.set_page_config(
-    page_title="Sitios por usuario",
+    page_title="Suelos – Sitios y análisis",
     layout="wide"
 )
 
-st.title("🗺️ Sitios por usuario")
-
 # --------------------------------------------------
-# Conexión a Supabase (API)
+# Supabase
 # --------------------------------------------------
 supabase = create_client(
     st.secrets["SUPABASE_URL"],
@@ -22,56 +21,73 @@ supabase = create_client(
 )
 
 # --------------------------------------------------
-# Cargar usuarios
+# Estado de sesión
 # --------------------------------------------------
-usuarios_resp = (
-    supabase
-    .table("usuarios")
-    .select("id,nombre")
-    .order("nombre")
-    .execute()
-)
+if "session" not in st.session_state:
+    st.session_state.session = None
 
-if not usuarios_resp.data:
-    st.error("No hay usuarios cargados.")
+# --------------------------------------------------
+# LOGIN
+# --------------------------------------------------
+if st.session_state.session is None:
+    st.title("🔐 Acceso al sistema")
+
+    email = st.text_input("Email")
+    password = st.text_input("Contraseña", type="password")
+
+    if st.button("Ingresar"):
+        try:
+            res = supabase.auth.sign_in_with_password({
+                "email": email,
+                "password": password
+            })
+            st.session_state.session = res.session
+            st.success("Ingreso correcto")
+            st.rerun()
+        except Exception:
+            st.error("Usuario o contraseña incorrectos")
+
     st.stop()
 
-usuarios = usuarios_resp.data
+# --------------------------------------------------
+# USUARIO AUTENTICADO
+# --------------------------------------------------
+st.title("🗺️ Sitios y análisis de suelos")
 
-usuario_sel = st.selectbox(
-    "👤 Seleccioná el usuario",
-    options=usuarios,
-    format_func=lambda u: u["nombre"]
-)
-
-usuario_id = usuario_sel["id"]
+if st.button("🚪 Cerrar sesión"):
+    supabase.auth.sign_out()
+    st.session_state.session = None
+    st.rerun()
 
 # --------------------------------------------------
-# Cargar sitios del usuario (lat / lon)
+# SITIOS (RLS filtra automáticamente)
 # --------------------------------------------------
-sitios_resp = (
+sitios = (
     supabase
     .table("sitios")
-    .select("id,latitud,longitud")
-    .eq("usuario_id", usuario_id)
+    .select("id,codigo_sitio,latitud,longitud")
     .execute()
-)
-
-sitios = sitios_resp.data
-
-st.markdown("---")
+).data
 
 if not sitios:
-    st.warning("Este usuario no tiene sitios cargados.")
+    st.info("No hay sitios asociados a este usuario.")
     st.stop()
 
 # --------------------------------------------------
-# Crear mapa centrado en el primer sitio
+# Selector de sitio (UX, no seguridad)
 # --------------------------------------------------
-center = [
-    sitios[0]["latitud"],
-    sitios[0]["longitud"]
-]
+sitio_sel = st.selectbox(
+    "📍 Seleccione un sitio",
+    sitios,
+    format_func=lambda s: s["codigo_sitio"]
+)
+
+sitio_id = sitio_sel["id"]
+
+# --------------------------------------------------
+# MAPA (siempre visible)
+# --------------------------------------------------
+center = [sitio_sel["latitud"], sitio_sel["longitud"]]
 
 m = folium.Map(
     location=center,
@@ -79,27 +95,51 @@ m = folium.Map(
     tiles="OpenStreetMap"
 )
 
-# --------------------------------------------------
-# Agregar marcadores
-# --------------------------------------------------
 for s in sitios:
     if s["latitud"] is None or s["longitud"] is None:
         continue
 
+    color = "red" if s["id"] == sitio_id else "blue"
+
     folium.Marker(
         location=[s["latitud"], s["longitud"]],
-        popup=f"ID sitio: {s['id']}",
-        tooltip=f"Sitio {s['id']}",
-        icon=folium.Icon(color="green", icon="info-sign")
+        popup=f"<b>{s['codigo_sitio']}</b>",
+        tooltip=s["codigo_sitio"],
+        icon=folium.Icon(color=color, icon="info-sign")
     ).add_to(m)
 
-# --------------------------------------------------
-# Mostrar mapa
-# --------------------------------------------------
-st_folium(m, width=1150, height=600)
+st_folium(m, width=1200, height=550)
 
 # --------------------------------------------------
-# Tabla opcional de sitios
+# ANALISIS DEL SITIO SELECCIONADO
 # --------------------------------------------------
-with st.expander("📋 Ver tabla de sitios"):
-    st.dataframe(sitios)
+st.subheader(f"🧪 Análisis – Sitio {sitio_sel['codigo_sitio']}")
+
+# muestras del sitio
+muestras = (
+    supabase
+    .table("muestras")
+    .select("id,fecha")
+    .eq("sitio_id", sitio_id)
+    .execute()
+).data
+
+if not muestras:
+    st.info("Este sitio no tiene muestras.")
+    st.stop()
+
+muestra_ids = [m["id"] for m in muestras]
+
+analisis = (
+    supabase
+    .table("analisis_suelos")
+    .select("*")
+    .in_("muestra_id", muestra_ids)
+    .execute()
+).data
+
+if analisis:
+    df = pd.DataFrame(analisis)
+    st.dataframe(df, use_container_width=True)
+else:
+    st.info("No hay análisis cargados para este sitio.")
