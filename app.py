@@ -154,7 +154,7 @@ for s in sitios:
     if s["latitud"] is None or s["longitud"] is None:
         continue
 
-    color = "red" if s["id"] == sitio_id else "blue"
+    color = "red" if s["id"] == st.session_state.sitio_id else "blue"
 
     folium.Marker(
         location=[s["latitud"], s["longitud"]],
