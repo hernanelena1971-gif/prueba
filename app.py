@@ -93,22 +93,41 @@ params = get_query_params()
 
 
 # --------------------------------------------------
-# RECOVERY / CREAR CONTRASEÑA DESDE MAIL
+# RECOVERY / CREAR CONTRASEÑA DESDE MAIL (CORRECTO)
 # --------------------------------------------------
-recovery_type = None
-if "type" in params:
-    if isinstance(params["type"], list):
-        recovery_type = params["type"][0]
-    else:
-        recovery_type = params["type"]
+params = params  # ya lo tenés arriba
+
+def get_param(name):
+    if name in params:
+        if isinstance(params[name], list):
+            return params[name][0]
+        return params[name]
+    return None
+
+recovery_type = get_param("type")
+access_token = get_param("access_token")
+refresh_token = get_param("refresh_token")
 
 if recovery_type == "recovery":
-    st.title("🔐 Crear nueva contraseña")
+    if not access_token or not refresh_token:
+        st.error("Link inválido o expirado.")
+        st.stop()
 
-    st.info(
-        "Validamos tu identidad. Ahora elegí una nueva contraseña "
-        "para acceder al sistema."
-    )
+    # ✅ CREAR SESIÓN MANUALMENTE
+    try:
+        supabase.auth.set_session(access_token, refresh_token)
+    except Exception:
+        st.error("No se pudo validar la sesión. El link puede haber expirado.")
+        st.stop()
+
+    # ✅ AHORA SÍ hay usuario autenticado
+    user = supabase.auth.get_user()
+    if not user or not user.user:
+        st.error("No se pudo identificar al usuario.")
+        st.stop()
+
+    st.title("🔐 Crear nueva contraseña")
+    st.caption(f"Usuario: {user.user.email}")
 
     pw1 = st.text_input("Nueva contraseña", type="password")
     pw2 = st.text_input("Confirmar contraseña", type="password")
@@ -124,13 +143,13 @@ if recovery_type == "recovery":
             try:
                 supabase.auth.update_user({"password": pw1})
 
-                user = supabase.auth.get_user()
                 supabase.table("perfiles").update({
                     "password_set": True
                 }).eq("user_id", user.user.id).execute()
 
                 st.success("✅ Contraseña creada correctamente")
-                st.caption("Ya podés iniciar sesión con tu contraseña")
+                st.success("Ya podés iniciar sesión.")
+                supabase.auth.sign_out()
                 st.session_state.session = None
                 st.rerun()
 
