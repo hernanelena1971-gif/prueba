@@ -8,6 +8,7 @@ from io import BytesIO
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 
+st.write("Query params:", st.query_params)
 
 def generar_pdf_informe(informe, titulo="Informe de análisis de suelo"):
     buffer = BytesIO()
