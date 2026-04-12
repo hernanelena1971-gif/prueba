@@ -72,6 +72,54 @@ supabase = get_supabase_client()
 if "session" not in st.session_state:
     st.session_state.session = None
 
+
+# --------------------------------------------------
+# RECOVERY PASSWORD DESDE LINK DE MAIL
+# --------------------------------------------------
+params = st.query_params
+
+if params.get("type") == "recovery":
+    st.title("🔐 Crear nueva contraseña")
+
+    st.info(
+        "Validamos tu identidad. Ahora elegí una nueva contraseña "
+        "para acceder al sistema."
+    )
+
+    pw1 = st.text_input("Nueva contraseña", type="password")
+    pw2 = st.text_input("Confirmar contraseña", type="password")
+
+    if st.button("Guardar contraseña"):
+        if not pw1 or not pw2:
+            st.error("Completá ambos campos")
+        elif pw1 != pw2:
+            st.error("Las contraseñas no coinciden")
+        elif len(pw1) < 8:
+            st.error("La contraseña debe tener al menos 8 caracteres")
+        else:
+            try:
+                # ✅ Supabase ya tiene sesión por el token del link
+                supabase.auth.update_user({"password": pw1})
+
+                # ✅ Marcamos onboarding completo
+                user = supabase.auth.get_user()
+                supabase.table("perfiles").update({
+                    "password_set": True
+                }).eq("user_id", user.user.id).execute()
+
+                st.success("✅ Contraseña creada correctamente")
+                st.caption("Ya podés ingresar con tu email y contraseña")
+                st.session_state.session = None
+                st.rerun()
+
+            except Exception as e:
+                st.error("No se pudo actualizar la contraseña")
+                st.code(str(e))
+
+    st.stop()
+
+
+
 # --------------------------------------------------
 # LOGIN
 # --------------------------------------------------
