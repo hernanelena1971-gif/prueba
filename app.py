@@ -81,19 +81,34 @@ if st.session_state.session is None:
     email = st.text_input("Email")
     password = st.text_input("Contraseña", type="password")
 
-    if st.button("Ingresar"):
-        try:
-            res = supabase.auth.sign_in_with_password({
-                "email": email,
-                "password": password
-            })
-            st.session_state.session = res.session
-            st.success("Ingreso correcto")
-            st.rerun()
-        except Exception as e:
-            st.error("Error de login")
-            st.code(str(e))
+    col1, col2 = st.columns(2)
 
+    with col1:
+        if st.button("Ingresar"):
+            try:
+                res = supabase.auth.sign_in_with_password({
+                    "email": email,
+                    "password": password
+                })
+                st.session_state.session = res.session
+                st.success("Ingreso correcto")
+                st.rerun()
+            except Exception:
+                st.error("Email o contraseña incorrectos")
+
+    with col2:
+        if st.button("¿Primer acceso / Olvidaste la contraseña?"):
+            if not email:
+                st.warning("Ingresá tu email primero")
+            else:
+                try:
+                    supabase.auth.reset_password_email(email)
+                    st.success(
+                        "📧 Te enviamos un mail para crear o cambiar tu contraseña"
+                    )
+                except Exception as e:
+                    st.error("No se pudo enviar el email")
+                    st.code(str(e))
 
     st.stop()
 
