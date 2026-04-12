@@ -73,91 +73,9 @@ supabase = get_supabase_client()
 if "session" not in st.session_state:
     st.session_state.session = None
 
-# --------------------------------------------------
-# LECTURA ROBUSTA DE QUERY PARAMS (compatible)
-# --------------------------------------------------
-def get_query_params():
-    # Streamlit nuevo
-    if hasattr(st, "query_params"):
-        return dict(st.query_params)
-
-    # Streamlit intermedio
-    if hasattr(st, "experimental_get_query_params"):
-        return st.experimental_get_query_params()
-
-    # Streamlit muy viejo → no soporta query params
-    return {}
 
 
-params = get_query_params()
 
-
-# --------------------------------------------------
-# RECOVERY / CREAR CONTRASEÑA DESDE MAIL (CORRECTO)
-# --------------------------------------------------
-params = params  # ya lo tenés arriba
-
-def get_param(name):
-    if name in params:
-        if isinstance(params[name], list):
-            return params[name][0]
-        return params[name]
-    return None
-
-recovery_type = get_param("type")
-access_token = get_param("access_token")
-refresh_token = get_param("refresh_token")
-
-if recovery_type == "recovery":
-    if not access_token or not refresh_token:
-        st.error("Link inválido o expirado.")
-        st.stop()
-
-    # ✅ CREAR SESIÓN MANUALMENTE
-    try:
-        supabase.auth.set_session(access_token, refresh_token)
-    except Exception:
-        st.error("No se pudo validar la sesión. El link puede haber expirado.")
-        st.stop()
-
-    # ✅ AHORA SÍ hay usuario autenticado
-    user = supabase.auth.get_user()
-    if not user or not user.user:
-        st.error("No se pudo identificar al usuario.")
-        st.stop()
-
-    st.title("🔐 Crear nueva contraseña")
-    st.caption(f"Usuario: {user.user.email}")
-
-    pw1 = st.text_input("Nueva contraseña", type="password")
-    pw2 = st.text_input("Confirmar contraseña", type="password")
-
-    if st.button("Guardar contraseña"):
-        if not pw1 or not pw2:
-            st.error("Completá ambos campos")
-        elif pw1 != pw2:
-            st.error("Las contraseñas no coinciden")
-        elif len(pw1) < 8:
-            st.error("La contraseña debe tener al menos 8 caracteres")
-        else:
-            try:
-                supabase.auth.update_user({"password": pw1})
-
-                supabase.table("perfiles").update({
-                    "password_set": True
-                }).eq("user_id", user.user.id).execute()
-
-                st.success("✅ Contraseña creada correctamente")
-                st.success("Ya podés iniciar sesión.")
-                supabase.auth.sign_out()
-                st.session_state.session = None
-                st.rerun()
-
-            except Exception as e:
-                st.error("No se pudo actualizar la contraseña")
-                st.code(str(e))
-
-    st.stop()
 
 
 
