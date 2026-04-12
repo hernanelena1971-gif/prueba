@@ -73,13 +73,37 @@ supabase = get_supabase_client()
 if "session" not in st.session_state:
     st.session_state.session = None
 
+# --------------------------------------------------
+# LECTURA ROBUSTA DE QUERY PARAMS (compatible)
+# --------------------------------------------------
+def get_query_params():
+    # Streamlit nuevo
+    if hasattr(st, "query_params"):
+        return dict(st.query_params)
+
+    # Streamlit intermedio
+    if hasattr(st, "experimental_get_query_params"):
+        return st.experimental_get_query_params()
+
+    # Streamlit muy viejo → no soporta query params
+    return {}
+
+
+params = get_query_params()
+
+
 
 # --------------------------------------------------
 # RECOVERY / CREAR CONTRASEÑA DESDE MAIL
 # --------------------------------------------------
-params = st.experimental_get_query_params()
+recovery_type = None
+if "type" in params:
+    if isinstance(params["type"], list):
+        recovery_type = params["type"][0]
+    else:
+        recovery_type = params["type"]
 
-if params.get("type", [None])[0] == "recovery":
+if recovery_type == "recovery":
     st.title("🔐 Crear nueva contraseña")
 
     st.info(
@@ -116,6 +140,7 @@ if params.get("type", [None])[0] == "recovery":
                 st.code(str(e))
 
     st.stop()
+
 
 
 
