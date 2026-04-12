@@ -92,7 +92,6 @@ def get_query_params():
 params = get_query_params()
 
 
-
 # --------------------------------------------------
 # RECOVERY / CREAR CONTRASEÑA DESDE MAIL
 # --------------------------------------------------
@@ -140,6 +139,7 @@ if recovery_type == "recovery":
                 st.code(str(e))
 
     st.stop()
+
 
 
 
