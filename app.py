@@ -8,7 +8,7 @@ from io import BytesIO
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 
-st.write("Query params:", st.query_params)
+
 
 def generar_pdf_informe(informe, titulo="Informe de análisis de suelo"):
     buffer = BytesIO()
@@ -75,11 +75,11 @@ if "session" not in st.session_state:
 
 
 # --------------------------------------------------
-# RECOVERY PASSWORD DESDE LINK DE MAIL
+# RECOVERY / CREAR CONTRASEÑA DESDE MAIL
 # --------------------------------------------------
-params = st.query_params
+params = st.experimental_get_query_params()
 
-if params.get("type") == "recovery":
+if params.get("type", [None])[0] == "recovery":
     st.title("🔐 Crear nueva contraseña")
 
     st.info(
@@ -99,17 +99,15 @@ if params.get("type") == "recovery":
             st.error("La contraseña debe tener al menos 8 caracteres")
         else:
             try:
-                # ✅ Supabase ya tiene sesión por el token del link
                 supabase.auth.update_user({"password": pw1})
 
-                # ✅ Marcamos onboarding completo
                 user = supabase.auth.get_user()
                 supabase.table("perfiles").update({
                     "password_set": True
                 }).eq("user_id", user.user.id).execute()
 
                 st.success("✅ Contraseña creada correctamente")
-                st.caption("Ya podés ingresar con tu email y contraseña")
+                st.caption("Ya podés iniciar sesión con tu contraseña")
                 st.session_state.session = None
                 st.rerun()
 
