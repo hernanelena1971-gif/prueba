@@ -202,30 +202,36 @@ st.dataframe(
 
 st.subheader("🧱 Textura del suelo")
 
-st.dataframe([
+df_textura = pd.DataFrame([
     {"Parámetro": "Arena (%)", "Valor": row["arena"]},
     {"Parámetro": "Limo (%)", "Valor": row["limo"]},
     {"Parámetro": "Arcilla (%)", "Valor": row["arcilla"]},
     {"Parámetro": "Clasificación textural", "Valor": row["textura"]},
-],
+])
+
+st.dataframe(
+    df_textura,
     use_container_width=True,
     hide_index=True
 )
 
 st.subheader("🧪 Propiedades químicas")
 
-st.dataframe([
+df_quimica = pd.DataFrame([
     {"Parámetro": "pH (pasta)", "Valor": row["ph"]},
     {"Parámetro": "Conductividad eléctrica", "Valor": row["conductividad"]},
     {"Parámetro": "Carbonato Ca + Mg", "Valor": row["carbonato_ca_mg"]},
-],
+])
+
+st.dataframe(
+    df_quimica,
     use_container_width=True,
     hide_index=True
 )
 
 st.subheader("🌱 Fertilidad y nutrientes")
 
-st.dataframe([
+df_fertilidad = pd.DataFrame([
     {"Parámetro": "Carbono orgánico", "Valor": row["carbono_organico"]},
     {"Parámetro": "Materia orgánica", "Valor": row["materia_organica"]},
     {"Parámetro": "Nitrógeno total", "Valor": row["nitrogeno_total"]},
@@ -233,19 +239,26 @@ st.dataframe([
     {"Parámetro": "Fósforo", "Valor": row["fosforo"]},
     {"Parámetro": "Potasio", "Valor": row["potasio"]},
     {"Parámetro": "Calcio", "Valor": row["calcio"]},
-],
+])
+
+st.dataframe(
+    df_fertilidad,
     use_container_width=True,
     hide_index=True
 )
+
 st.subheader("⚠️ Sales y otros parámetros")
 
-st.dataframe([
+df_sales = pd.DataFrame([
     {"Parámetro": "Sodio intercambiable", "Valor": row["sodio"]},
     {"Parámetro": "Cloruro (extracto)", "Valor": row["cloruro_extracto"]},
     {"Parámetro": "Cloruro (suelo seco)", "Valor": row["cloruro_suelo_seco"]},
     {"Parámetro": "EAS", "Valor": row["eas"]},
     {"Parámetro": "Boro", "Valor": row["boro"]},
-],
+])
+
+st.dataframe(
+    df_sales,
     use_container_width=True,
     hide_index=True
 )
