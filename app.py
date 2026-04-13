@@ -1,103 +1,83 @@
 import streamlit as st
 from supabase import create_client
+from supabase.lib.client_options import ClientOptions
 import folium
 from streamlit_folium import st_folium
-import pandas as pd
-from supabase import create_client, ClientOptions
 from io import BytesIO
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 
-
-
-def generar_pdf_informe(informe, titulo="Informe de análisis de suelo"):
-    buffer = BytesIO()
-    c = canvas.Canvas(buffer, pagesize=A4)
-    width, height = A4
-
-    y = height - 50
-    c.setFont("Helvetica-Bold", 14)
-    c.drawString(50, y, titulo)
-    y -= 30
-
-    c.setFont("Helvetica", 10)
-
-    for parametro, valor in informe:
-        if y < 50:
-            c.showPage()
-            c.setFont("Helvetica", 10)
-            y = height - 50
-
-        texto = f"{parametro}: {valor}"
-        c.drawString(50, y, texto)
-        y -= 15
-
-    c.showPage()
-    c.save()
-    buffer.seek(0)
-    return buffer
-    
-# --------------------------------------------------
-# Configuración general
-# --------------------------------------------------
+# ==================================================
+# CONFIGURACIÓN GENERAL
+# ==================================================
 st.set_page_config(
     page_title="Suelos – Sitios y análisis",
     layout="wide"
 )
-# --------------------------------------------------
-# PKCE: intercambio de code por sesión
-# --------------------------------------------------
-params = st.experimental_get_query_params()
+
+# ==================================================
+# SUPABASE (cliente simple, compatible con PKCE)
+# ==================================================
+def get_supabase_client():
+    return create_client(
+        st.secrets["SUPABASE_URL"],
+        st.secrets["SUPABASE_ANON_KEY"]
+    )
+
+supabase = get_supabase_client()
+
+# ==================================================
+# ESTADO DE SESIÓN
+# ==================================================
+if "session" not in st.session_state:
+    st.session_state.session = None
+
+if "sitio_id" not in st.session_state:
+    st.session_state.sitio_id = None
+
+# ==================================================
+# UTILIDAD – query params compatibles (todas las versiones)
+# ==================================================
+def get_query_params():
+    if hasattr(st, "query_params"):
+        return dict(st.query_params)
+    elif hasattr(st, "experimental_get_query_params"):
+        return st.experimental_get_query_params()
+    return {}
+
+# ==================================================
+# PKCE – Intercambiar ?code= por sesión
+# ==================================================
+params = get_query_params()
 
 if "code" in params:
     try:
         supabase.auth.exchange_code_for_session(params["code"][0])
-        st.success("✅ Acceso validado, ingresando...")
-        st.experimental_set_query_params()  # limpia la URL
+        st.session_state.session = supabase.auth.get_session()
+
+        # limpiar URL
+        if hasattr(st, "query_params"):
+            st.query_params.clear()
+
         st.rerun()
     except Exception as e:
         st.error("❌ No se pudo validar el acceso")
         st.exception(e)
 
-
-
-
-
-
-# --------------------------------------------------
-# Supabase
-# --------------------------------------------------
-def get_supabase_client():
-    if "session" in st.session_state and st.session_state.session:
-        return create_client(
-            st.secrets["SUPABASE_URL"],
-            st.secrets["SUPABASE_ANON_KEY"],
-            ClientOptions(
-                headers={
-                    "Authorization": f"Bearer {st.session_state.session.access_token}"
-                }
-            )
-        )
-    else:
-        return create_client(
-            st.secrets["SUPABASE_URL"],
-            st.secrets["SUPABASE_ANON_KEY"]
-        )
-
-supabase = get_supabase_client()
-
-# --------------------------------------------------
-# Estado de sesión
-# --------------------------------------------------
-if "session" not in st.session_state:
+# ==================================================
+# OBTENER SESIÓN ACTUAL
+# ==================================================
+session = supabase.auth.get_session()
+if session and session.user:
+    st.session_state.session = session
+else:
     st.session_state.session = None
 
-
-# --------------------------------------------------
-# LOGIN CON MAGIC LINK (PKCE)
-# --------------------------------------------------
+# ==================================================
+# LOGIN – MAGIC LINK (PKCE)
+# ==================================================
 if st.session_state.session is None:
-    st.title("🔐 Acceso a resultados")
+    st.title("🔐 Acceso a resultados de análisis")
 
     email = st.text_input("Email")
 
@@ -121,27 +101,27 @@ if st.session_state.session is None:
                     "Abrí tu correo y hacé click en el link para ingresar."
                 )
             except Exception as e:
-                st.error("No se pudo enviar el link")
+                st.error("No se pudo enviar el link de acceso")
                 st.exception(e)
 
     st.stop()
-    
-# --------------------------------------------------
+
+# ==================================================
 # USUARIO AUTENTICADO
-# --------------------------------------------------
-if "sitio_id" not in st.session_state:
-    st.session_state.sitio_id = None
-    
+# ==================================================
+user = supabase.auth.get_user()
+
 st.title("🗺️ Sitios y análisis de suelos")
+st.caption(f"Usuario autenticado: {user.user.email}")
 
 if st.button("🚪 Cerrar sesión"):
     supabase.auth.sign_out()
     st.session_state.session = None
     st.rerun()
 
-# --------------------------------------------------
-# SITIOS (RLS filtra automáticamente)
-# --------------------------------------------------
+# ==================================================
+# SITIOS (RLS FILTRA AUTOMÁTICAMENTE)
+# ==================================================
 sitios = (
     supabase
     .table("sitios")
@@ -153,84 +133,56 @@ if not sitios:
     st.info("No hay sitios asociados a este usuario.")
     st.stop()
 
-# --------------------------------------------------
-# Selector de sitio (UX, no seguridad)
-# --------------------------------------------------
+# ==================================================
+# SELECTOR DE SITIO
+# ==================================================
+def get_index_by_id(items, item_id):
+    for i, s in enumerate(items):
+        if s["id"] == item_id:
+            return i
+    return 0
+
+index = get_index_by_id(sitios, st.session_state.sitio_id)
+
 sitio_sel = st.selectbox(
     "📍 Seleccione un sitio",
     sitios,
     format_func=lambda s: s["codigo_sitio"],
-    index=0 if st.session_state.sitio_id is None else
-    next(i for i, s in enumerate(sitios) if s["id"] == st.session_state.sitio_id)
+    index=index
 )
 
 st.session_state.sitio_id = sitio_sel["id"]
 
-
-# --------------------------------------------------
-# MAPA (siempre visible)
-# --------------------------------------------------
-
+# ==================================================
+# MAPA
+# ==================================================
 lats = [s["latitud"] for s in sitios if s["latitud"] is not None]
 lons = [s["longitud"] for s in sitios if s["longitud"] is not None]
 
-bounds = [[min(lats), min(lons)], [max(lats), max(lons)]]
-
 m = folium.Map(tiles="OpenStreetMap")
-m.fit_bounds(bounds)
 
-# Recentrar si hay sitio seleccionado
-if st.session_state.sitio_id is not None:
-    sitio_activo = next(
-        s for s in sitios if s["id"] == st.session_state.sitio_id
-    )
-    m.location = [sitio_activo["latitud"], sitio_activo["longitud"]]
-    m.zoom_start = 14
+if lats and lons:
+    m.fit_bounds([[min(lats), min(lons)], [max(lats), max(lons)]])
 
 for s in sitios:
     color = "red" if s["id"] == st.session_state.sitio_id else "blue"
-
     folium.Marker(
         location=[s["latitud"], s["longitud"]],
-        popup=f"<b>{s['codigo_sitio']}</b>",
         tooltip=s["codigo_sitio"],
-        icon=folium.Icon(color=color, icon="info-sign")
+        icon=folium.Icon(color=color)
     ).add_to(m)
 
-mapa = st_folium(m, width=1200, height=550)
-# --------------------------------------
-# Detectar clic en marcador y actualizar sitio
-# --------------------------------------
-if mapa and mapa.get("last_object_clicked"):
-    lat = mapa["last_object_clicked"]["lat"]
-    lng = mapa["last_object_clicked"]["lng"]
+st_folium(m, height=500)
 
-    for s in sitios:
-        if abs(s["latitud"] - lat) < 0.0001 and abs(s["longitud"] - lng) < 0.0001:
-            if st.session_state.sitio_id != s["id"]:
-                st.session_state.sitio_id = s["id"]
-                st.rerun()
-
-
-
-# --------------------------------------------------
-# ANALISIS DEL SITIO SELECCIONADO
-# --------------------------------------------------
-
-# ✅ GUARD: si todavía no hay sitio elegido
+# ==================================================
+# ANÁLISIS DEL SITIO SELECCIONADO
+# ==================================================
 if st.session_state.sitio_id is None:
-    st.info("Seleccioná un sitio en el mapa para ver el análisis.")
+    st.info("Seleccioná un sitio para ver el análisis.")
     st.stop()
 
-# ✅ ACÁ VA sitio_activo (ESTE es el lugar correcto)
-sitio_activo = next(
-    s for s in sitios if s["id"] == st.session_state.sitio_id
-)
+st.subheader(f"🧪 Análisis – Sitio {sitio_sel['codigo_sitio']}")
 
-# ✅ A PARTIR DE ACÁ usás sitio_activo
-st.subheader(f"🧪 Análisis – Sitio {sitio_activo['codigo_sitio']}")
-
-# ✅ RPC (no cambia)
 try:
     data = (
         supabase
@@ -251,7 +203,9 @@ if not data:
 
 row = data[0]
 
-# ---------- Informe como lista (fuente única) ----------
+# ==================================================
+# INFORME COMPLETO (igual al original)
+# ==================================================
 informe = [
     ("Usuario", row["usuario"]),
     ("Sitio", row["sitio"]),
@@ -286,20 +240,41 @@ informe = [
     ("Boro", row["boro"]),
 ]
 
-# ---------- Mostrar tabla ----------
-st.table(
-    [{"Parámetro": k, "Valor": v} for k, v in informe]
-)
+st.table([{"Parámetro": k, "Valor": v} for k, v in informe])
 
-# ---------- PASO 3: generar y descargar PDF ----------
+# ==================================================
+# PDF
+# ==================================================
+def generar_pdf_informe(informe, titulo):
+    buffer = BytesIO()
+    c = canvas.Canvas(buffer, pagesize=A4)
+    width, height = A4
+    y = height - 50
+
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(50, y, titulo)
+    y -= 30
+
+    c.setFont("Helvetica", 10)
+    for k, v in informe:
+        if y < 50:
+            c.showPage()
+            y = height - 50
+        c.drawString(50, y, f"{k}: {v}")
+        y -= 14
+
+    c.save()
+    buffer.seek(0)
+    return buffer
+
 pdf_buffer = generar_pdf_informe(
     informe,
-    titulo=f"Informe de análisis de suelo - {row['sitio']}"
+    f"Informe de análisis de suelo – {row['sitio']}"
 )
 
 st.download_button(
-    label="📄 Descargar informe en PDF",
-    data=pdf_buffer,
+    "📄 Descargar informe PDF",
+    pdf_buffer,
     file_name=f"informe_suelo_{row['sitio']}.pdf",
     mime="application/pdf"
 )
