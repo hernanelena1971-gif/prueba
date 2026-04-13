@@ -51,6 +51,11 @@ if st.session_state.session is None:
             st.error("Email o contraseña incorrectos")
 
     st.stop()
+def get_auth_user_id(user):
+    # soporta objeto o dict
+    if isinstance(user, dict):
+        return user.get("id")
+    return getattr(user, "id", None)
 
 # ==================================================
 # USUARIO AUTENTICADO (DESDE SESSION_STATE)
