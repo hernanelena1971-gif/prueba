@@ -14,13 +14,13 @@ st.set_page_config(
     layout="wide"
 )
 
-def get_supabase_client():
-    return create_client(
-        st.secrets["SUPABASE_URL"],
-        st.secrets["SUPABASE_ANON_KEY"]
-    )
-
-supabase = get_supabase_client()
+# ==================================================
+# SUPABASE – UN SOLO CLIENTE (MUY IMPORTANTE)
+# ==================================================
+supabase = create_client(
+    st.secrets["SUPABASE_URL"],
+    st.secrets["SUPABASE_ANON_KEY"]
+)
 
 # ==================================================
 # ESTADO DE SESIÓN
@@ -32,7 +32,7 @@ if "sitio_id" not in st.session_state:
     st.session_state.sitio_id = None
 
 # ==================================================
-# LOGIN (EMAIL + PASSWORD)
+# LOGIN SIMPLE (EMAIL + PASSWORD)
 # ==================================================
 if st.session_state.session is None:
     st.title("🔐 Acceso al sistema")
@@ -42,7 +42,6 @@ if st.session_state.session is None:
 
     if st.button("Ingresar"):
         try:
-            supabase = get_supabase_client()
             res = supabase.auth.sign_in_with_password({
                 "email": email,
                 "password": password
@@ -57,8 +56,6 @@ if st.session_state.session is None:
 # ==================================================
 # USUARIO AUTENTICADO
 # ==================================================
-session = st.session_state.session
-supabase = get_supabase_client(session.access_token)
 user = supabase.auth.get_user()
 
 # ==================================================
@@ -73,7 +70,7 @@ perfil = (
     .execute()
 ).data
 
-if perfil["must_change_password"]:
+if perfil and perfil["must_change_password"]:
     st.title("🔑 Primer ingreso")
 
     st.info(
