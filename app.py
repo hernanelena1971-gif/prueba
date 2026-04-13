@@ -125,10 +125,16 @@ st.session_state.sitio_id = sitio_sel["id"]
 # --------------------------------------------------
 # MAPA
 # --------------------------------------------------
-m = folium.Map(
-    location=[sitio_sel["latitud"], sitio_sel["longitud"]],
-    zoom_start=8
-)
+lats = [s["latitud"] for s in sitios if s["latitud"] is not None]
+lons = [s["longitud"] for s in sitios if s["longitud"] is not None]
+
+m = folium.Map(tiles="OpenStreetMap")
+
+if lats and lons:
+    m.fit_bounds([
+        [min(lats), min(lons)],
+        [max(lats), max(lons)]
+    ])
 
 for s in sitios:
     folium.Marker(
