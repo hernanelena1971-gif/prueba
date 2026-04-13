@@ -23,14 +23,12 @@ supabase = create_client(
 )
 
 # --------------------------------------------------
-# Session state
+# Session state (solo auth)
 # --------------------------------------------------
 if "session" not in st.session_state:
     st.session_state.session = None
 if "user" not in st.session_state:
     st.session_state.user = None
-if "usuario_id" not in st.session_state:
-    st.session_state.usuario_id = None
 if "sitio_id" not in st.session_state:
     st.session_state.sitio_id = None
 
@@ -65,13 +63,14 @@ auth_user_id = user.id
 user_email = user.email
 
 # --------------------------------------------------
-# Usuario histórico (tabla usuarios)
+# Usuario histórico (SIEMPRE recalculado desde Auth)
 # --------------------------------------------------
 usuario_res = (
     supabase
     .table("usuarios")
     .select("id,nombre")
     .eq("auth_user_id", auth_user_id)
+    .single()
     .execute()
 )
 
@@ -86,22 +85,25 @@ if not usuario_res.data:
         st.rerun()
     st.stop()
 
-usuario = usuario_res.data[0]
-st.session_state.usuario_id = usuario["id"]
+usuario_id = usuario_res.data["id"]
+usuario_nombre = usuario_res.data["nombre"]
 
+# --------------------------------------------------
+# Logout
+# --------------------------------------------------
 if st.button("🚪 Cerrar sesión"):
     supabase.auth.sign_out()
     st.session_state.clear()
     st.rerun()
 
 # --------------------------------------------------
-# Sitios del usuario (igual que antes)
+# Sitios del usuario (MISMA lógica que antes)
 # --------------------------------------------------
 sitios = (
     supabase
     .table("sitios")
     .select("id,codigo_sitio,latitud,longitud")
-    .eq("usuario_id", st.session_state.usuario_id)
+    .eq("usuario_id", usuario_id)
     .execute()
 ).data
 
@@ -109,9 +111,9 @@ if not sitios:
     st.info("No hay sitios asociados.")
     st.stop()
 
-def index_by_id(items, item_id):
-    for i, it in enumerate(items):
-        if it["id"] == item_id:
+def idx_by_id(items, sid):
+    for i, s in enumerate(items):
+        if s["id"] == sid:
             return i
     return 0
 
@@ -119,7 +121,7 @@ sitio_sel = st.selectbox(
     "📍 Seleccione un sitio",
     sitios,
     format_func=lambda s: s["codigo_sitio"],
-    index=index_by_id(sitios, st.session_state.sitio_id)
+    index=idx_by_id(sitios, st.session_state.sitio_id)
 )
 
 st.session_state.sitio_id = sitio_sel["id"]
@@ -146,9 +148,9 @@ for s in sitios:
 st_folium(m, height=500)
 
 # --------------------------------------------------
-# Análisis (RPC EXACTA que ya tenías)
+# Análisis (RPC original)
 # --------------------------------------------------
-st.subheader(f"🧪 Análisis – Sitio {sitio_sel['codigo_sitio']}")
+st.subheader(f"🧪 Análisis – {sitio_sel['codigo_sitio']}")
 
 data = (
     supabase
@@ -166,7 +168,7 @@ if not data:
 row = data[0]
 
 # --------------------------------------------------
-# Informe completo (todos los análisis)
+# Informe completo (TODOS los análisis)
 # --------------------------------------------------
 informe = [
     ("Usuario", row["usuario"]),
