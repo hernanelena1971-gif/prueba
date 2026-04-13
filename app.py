@@ -181,35 +181,44 @@ row = data[0]
 #st.table([{"Parámetro": k, "Valor": v} for k,v in informe])
 st.subheader("📋 Información general")
 
-st.table([
+st.dataframe([
     {"Parámetro": "Usuario", "Valor": row["usuario"]},
     {"Parámetro": "Sitio", "Valor": row["sitio"]},
     {"Parámetro": "Fecha de muestreo", "Valor": row["fecha_muestreo"]},
     {"Parámetro": "Número de laboratorio", "Valor": row["numero_laboratorio"]},
     {"Parámetro": "Profundidad", "Valor": row["profundidad"]},
     {"Parámetro": "Uso actual", "Valor": row["uso_actual"]},
-])
+],
+    use_container_width=True,
+    hide_index=True
+)
 
 st.subheader("🧱 Textura del suelo")
 
-st.table([
+st.dataframe([
     {"Parámetro": "Arena (%)", "Valor": row["arena"]},
     {"Parámetro": "Limo (%)", "Valor": row["limo"]},
     {"Parámetro": "Arcilla (%)", "Valor": row["arcilla"]},
     {"Parámetro": "Clasificación textural", "Valor": row["textura"]},
-])
+],
+    use_container_width=True,
+    hide_index=True
+)
 
 st.subheader("🧪 Propiedades químicas")
 
-st.table([
+st.dataframe([
     {"Parámetro": "pH (pasta)", "Valor": row["ph"]},
     {"Parámetro": "Conductividad eléctrica", "Valor": row["conductividad"]},
     {"Parámetro": "Carbonato Ca + Mg", "Valor": row["carbonato_ca_mg"]},
-])
+],
+    use_container_width=True,
+    hide_index=True
+)
 
 st.subheader("🌱 Fertilidad y nutrientes")
 
-st.table([
+st.dataframe([
     {"Parámetro": "Carbono orgánico", "Valor": row["carbono_organico"]},
     {"Parámetro": "Materia orgánica", "Valor": row["materia_organica"]},
     {"Parámetro": "Nitrógeno total", "Valor": row["nitrogeno_total"]},
@@ -217,22 +226,60 @@ st.table([
     {"Parámetro": "Fósforo", "Valor": row["fosforo"]},
     {"Parámetro": "Potasio", "Valor": row["potasio"]},
     {"Parámetro": "Calcio", "Valor": row["calcio"]},
-])
+],
+    use_container_width=True,
+    hide_index=True
+)
 st.subheader("⚠️ Sales y otros parámetros")
 
-st.table([
+st.dataframe([
     {"Parámetro": "Sodio intercambiable", "Valor": row["sodio"]},
     {"Parámetro": "Cloruro (extracto)", "Valor": row["cloruro_extracto"]},
     {"Parámetro": "Cloruro (suelo seco)", "Valor": row["cloruro_suelo_seco"]},
     {"Parámetro": "EAS", "Valor": row["eas"]},
     {"Parámetro": "Boro", "Valor": row["boro"]},
-])
+],
+    use_container_width=True,
+    hide_index=True
+)
 
 pdf_buffer = generar_pdf_informe(
     informe,
     f"Informe de análisis de suelo – {sitio_sel['codigo_sitio']}"
 )
-
+# --------------------------------------------------
+# INFORME PLANO SOLO PARA PDF
+# --------------------------------------------------
+informe = [
+    ("Usuario", row["usuario"]),
+    ("Sitio", row["sitio"]),
+    ("Fecha de muestreo", row["fecha_muestreo"]),
+    ("Número de laboratorio", row["numero_laboratorio"]),
+    ("Profundidad", row["profundidad"]),
+    ("Uso actual", row["uso_actual"]),
+    ("Uso anterior", row["uso_anterior"]),
+    ("Uso posterior", row["uso_posterior"]),
+    ("Observaciones", row["observaciones"]),
+    ("Arena (%)", row["arena"]),
+    ("Limo (%)", row["limo"]),
+    ("Arcilla (%)", row["arcilla"]),
+    ("Textura", row["textura"]),
+    ("pH", row["ph"]),
+    ("Conductividad eléctrica", row["conductividad"]),
+    ("Carbonato Ca + Mg", row["carbonato_ca_mg"]),
+    ("Carbono orgánico", row["carbono_organico"]),
+    ("Materia orgánica", row["materia_organica"]),
+    ("Nitrógeno total", row["nitrogeno_total"]),
+    ("Relación C/N", row["relacion_cn"]),
+    ("Fósforo", row["fosforo"]),
+    ("Sodio", row["sodio"]),
+    ("Potasio", row["potasio"]),
+    ("Calcio", row["calcio"]),
+    ("Cloruro (extracto)", row["cloruro_extracto"]),
+    ("Cloruro (suelo seco)", row["cloruro_suelo_seco"]),
+    ("EAS", row["eas"]),
+    ("Boro", row["boro"]),
+]
 st.download_button(
     "📄 Descargar informe PDF",
     pdf_buffer,
