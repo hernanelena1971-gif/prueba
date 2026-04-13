@@ -37,7 +37,7 @@ def generar_pdf_informe(informe, titulo):
 st.set_page_config(page_title="Suelos – Sitios y análisis", layout="wide")
 
 # --------------------------------------------------
-# Supabase client (CLAVE PARA RLS)
+# Supabase client (con sesión para RLS)
 # --------------------------------------------------
 def get_supabase_client():
     if "session" in st.session_state and st.session_state.session:
@@ -99,7 +99,7 @@ if st.button("🚪 Cerrar sesión"):
     st.rerun()
 
 # --------------------------------------------------
-# SITIOS – RLS FILTRA (COMO ANTES)
+# SITIOS (RLS filtra)
 # --------------------------------------------------
 sitios = (
     supabase
@@ -112,6 +112,9 @@ if not sitios:
     st.info("No hay sitios asociados a este usuario.")
     st.stop()
 
+# --------------------------------------------------
+# Selector de sitio
+# --------------------------------------------------
 sitio_sel = st.selectbox(
     "📍 Seleccione un sitio",
     sitios,
@@ -123,7 +126,7 @@ sitio_sel = st.selectbox(
 st.session_state.sitio_id = sitio_sel["id"]
 
 # --------------------------------------------------
-# MAPA
+# MAPA — zoom a todos los sitios + click selecciona
 # --------------------------------------------------
 lats = [s["latitud"] for s in sitios if s["latitud"] is not None]
 lons = [s["longitud"] for s in sitios if s["longitud"] is not None]
@@ -131,10 +134,7 @@ lons = [s["longitud"] for s in sitios if s["longitud"] is not None]
 m = folium.Map(tiles="OpenStreetMap")
 
 if lats and lons:
-    m.fit_bounds([
-        [min(lats), min(lons)],
-        [max(lats), max(lons)]
-    ])
+    m.fit_bounds([[min(lats), min(lons)], [max(lats), max(lons)]])
 
 for s in sitios:
     folium.Marker(
@@ -145,7 +145,21 @@ for s in sitios:
         )
     ).add_to(m)
 
-st_folium(m, width=1200, height=550)
+mapa = st_folium(m, width=1200, height=550)
+
+# Click en marcador → cambia sitio activo
+if mapa and mapa.get("last_object_clicked"):
+    lat = mapa["last_object_clicked"]["lat"]
+    lng = mapa["last_object_clicked"]["lng"]
+
+    for s in sitios:
+        if (
+            abs(s["latitud"] - lat) < 0.0001 and
+            abs(s["longitud"] - lng) < 0.0001
+        ):
+            if st.session_state.sitio_id != s["id"]:
+                st.session_state.sitio_id = s["id"]
+                st.rerun()
 
 # --------------------------------------------------
 # ANÁLISIS (RPC)
