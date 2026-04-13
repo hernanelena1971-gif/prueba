@@ -14,26 +14,13 @@ st.set_page_config(
     layout="wide"
 )
 
-# ==================================================
-# SUPABASE
-# ==================================================
-def get_supabase_client(access_token=None):
-    if access_token:
-        return create_client(
-            st.secrets["SUPABASE_URL"],
-            st.secrets["SUPABASE_ANON_KEY"],
-            options={
-                "global": {
-                    "headers": {
-                        "Authorization": f"Bearer {access_token}"
-                    }
-                }
-            }
-        )
+def get_supabase_client():
     return create_client(
         st.secrets["SUPABASE_URL"],
         st.secrets["SUPABASE_ANON_KEY"]
     )
+
+supabase = get_supabase_client()
 
 # ==================================================
 # ESTADO DE SESIÓN
