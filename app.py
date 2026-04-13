@@ -82,45 +82,34 @@ if "session" not in st.session_state:
 
 
 # --------------------------------------------------
-# LOGIN
+# LOGIN CON MAGIC LINK
 # --------------------------------------------------
 if st.session_state.session is None:
-    st.title("🔐 Acceso al sistema")
+    st.title("🔐 Acceso a resultados")
 
     email = st.text_input("Email")
-    password = st.text_input("Contraseña", type="password")
 
-    col1, col2 = st.columns(2)
-
-    with col1:
-        if st.button("Ingresar"):
+    if st.button("📨 Enviar link de acceso"):
+        if not email:
+            st.warning("Ingresá tu email")
+        else:
             try:
-                res = supabase.auth.sign_in_with_password({
+                supabase.auth.sign_in_with_otp({
                     "email": email,
-                    "password": password
+                    "options": {
+                        "emailRedirectTo": "https://supabasesuelos.streamlit.app"
+                    }
                 })
-                st.session_state.session = res.session
-                st.success("Ingreso correcto")
-                st.rerun()
-            except Exception:
-                st.error("Email o contraseña incorrectos")
-
-    with col2:
-        if st.button("¿Primer acceso / Olvidaste la contraseña?"):
-            if not email:
-                st.warning("Ingresá tu email primero")
-            else:
-                try:
-                    supabase.auth.reset_password_email(email)
-                    st.success(
-                        "📧 Te enviamos un mail para crear o cambiar tu contraseña"
-                    )
-                except Exception as e:
-                    st.error("No se pudo enviar el email")
-                    st.code(str(e))
+                st.success(
+                    "✅ Te enviamos un mail con el link de acceso.\n\n"
+                    "Abrí tu correo y hacé click en el link para ingresar."
+                )
+            except Exception as e:
+                st.error("No se pudo enviar el link")
+                st.exception(e)
 
     st.stop()
-
+    
 # --------------------------------------------------
 # USUARIO AUTENTICADO
 # --------------------------------------------------
