@@ -1,11 +1,11 @@
 import streamlit as st
 from supabase import create_client
-from supabase.lib.client_options import ClientOptions
 import folium
 from streamlit_folium import st_folium
 from io import BytesIO
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
+from streamlit.components.v1 import html
 
 # ==================================================
 # CONFIGURACIÓN GENERAL
@@ -16,7 +16,7 @@ st.set_page_config(
 )
 
 # ==================================================
-# SUPABASE (cliente simple, compatible con PKCE)
+# SUPABASE
 # ==================================================
 def get_supabase_client():
     return create_client(
@@ -35,37 +35,56 @@ if "session" not in st.session_state:
 if "sitio_id" not in st.session_state:
     st.session_state.sitio_id = None
 
-# ==================================================
-# UTILIDAD – query params compatibles (todas las versiones)
-# ==================================================
-def get_query_params():
-    if hasattr(st, "query_params"):
-        return dict(st.query_params)
-    elif hasattr(st, "experimental_get_query_params"):
-        return st.experimental_get_query_params()
-    return {}
+if "supabase_tokens" not in st.session_state:
+    st.session_state.supabase_tokens = None
 
 # ==================================================
-# PKCE – Intercambiar ?code= por sesión
+# CAPTURAR TOKENS DESDE URL (#hash) CON JS
 # ==================================================
-params = get_query_params()
+html(
+    """
+    <script>
+    (function() {
+        const hash = window.location.hash.substring(1);
+        if (!hash) return;
 
-if "code" in params:
-    try:
-        supabase.auth.exchange_code_for_session(params["code"][0])
+        const params = new URLSearchParams(hash);
+        const data = {};
+        for (const [k, v] of params.entries()) {
+            data[k] = v;
+        }
+
+        window.parent.postMessage(
+            { type: "SUPABASE_AUTH", payload: data },
+            "*"
+        );
+    })();
+    </script>
+    """,
+    height=0
+)
+
+# ==================================================
+# LEER TOKENS CAPTURADOS Y CREAR SESIÓN
+# ==================================================
+def handle_magic_link_login():
+    tokens = st.session_state.get("supabase_tokens")
+    if not tokens:
+        return
+
+    if "access_token" in tokens:
+        supabase.auth.set_session(
+            tokens["access_token"],
+            tokens.get("refresh_token")
+        )
         st.session_state.session = supabase.auth.get_session()
-
-        # limpiar URL
-        if hasattr(st, "query_params"):
-            st.query_params.clear()
-
+        st.session_state.supabase_tokens = None
         st.rerun()
-    except Exception as e:
-        st.error("❌ No se pudo validar el acceso")
-        st.exception(e)
+
+handle_magic_link_login()
 
 # ==================================================
-# OBTENER SESIÓN ACTUAL
+# LOGIN CON MAGIC LINK
 # ==================================================
 session = supabase.auth.get_session()
 if session and session.user:
@@ -73,9 +92,6 @@ if session and session.user:
 else:
     st.session_state.session = None
 
-# ==================================================
-# LOGIN – MAGIC LINK (PKCE)
-# ==================================================
 if st.session_state.session is None:
     st.title("🔐 Acceso a resultados de análisis")
 
@@ -90,11 +106,9 @@ if st.session_state.session is None:
                     {
                         "email": email,
                         "options": {
-                            "emailRedirectTo": "https://supabasesuelos.streamlit.app",
-                            "shouldCreateUser": True
+                            "emailRedirectTo": "https://supabasesuelos.streamlit.app"
                         }
-                    },
-                    flow_type="pkce"
+                    }
                 )
                 st.success(
                     "✅ Te enviamos un mail con el link de acceso.\n\n"
@@ -175,7 +189,7 @@ for s in sitios:
 st_folium(m, height=500)
 
 # ==================================================
-# ANÁLISIS DEL SITIO SELECCIONADO
+# ANÁLISIS DEL SITIO
 # ==================================================
 if st.session_state.sitio_id is None:
     st.info("Seleccioná un sitio para ver el análisis.")
@@ -198,31 +212,28 @@ except Exception as e:
     st.stop()
 
 if not data:
-    st.info("No hay análisis disponibles para este sitio.")
+    st.info("No hay análisis disponibles.")
     st.stop()
 
 row = data[0]
 
 # ==================================================
-# INFORME COMPLETO (igual al original)
+# INFORME COMPLETO
 # ==================================================
 informe = [
     ("Usuario", row["usuario"]),
     ("Sitio", row["sitio"]),
     ("Fecha de muestreo", row["fecha_muestreo"]),
-
     ("Número de laboratorio", row["numero_laboratorio"]),
     ("Profundidad de muestreo", row["profundidad"]),
     ("Uso actual", row["uso_actual"]),
     ("Uso anterior", row["uso_anterior"]),
     ("Uso posterior", row["uso_posterior"]),
     ("Observaciones", row["observaciones"]),
-
     ("Arena (%)", row["arena"]),
     ("Limo (%)", row["limo"]),
     ("Arcilla (%)", row["arcilla"]),
     ("Textura", row["textura"]),
-
     ("pH (pasta)", row["ph"]),
     ("Conductividad eléctrica", row["conductividad"]),
     ("Carbonato Ca + Mg", row["carbonato_ca_mg"]),
