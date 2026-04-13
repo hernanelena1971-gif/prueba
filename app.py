@@ -177,8 +177,21 @@ if not data:
 
 row = data[0]
 
-informe = [(k.replace("_"," ").title(), v) for k,v in row.items()]
-st.table([{"Parámetro": k, "Valor": v} for k,v in informe])
+#informe = [(k.replace("_"," ").title(), v) for k,v in row.items()]
+#st.table([{"Parámetro": k, "Valor": v} for k,v in informe])
+st.subheader("📋 Información general")
+
+st.table([
+    {"Parámetro": "Usuario", "Valor": row["usuario"]},
+    {"Parámetro": "Sitio", "Valor": row["sitio"]},
+    {"Parámetro": "Fecha de muestreo", "Valor": row["fecha_muestreo"]},
+    {"Parámetro": "Número de laboratorio", "Valor": row["numero_laboratorio"]},
+    {"Parámetro": "Profundidad", "Valor": row["profundidad"]},
+    {"Parámetro": "Uso actual", "Valor": row["uso_actual"]},
+])
+
+
+
 
 pdf_buffer = generar_pdf_informe(
     informe,
