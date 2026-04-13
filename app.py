@@ -5,6 +5,7 @@ from streamlit_folium import st_folium
 from io import BytesIO
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
+import pandas as pd
 
 # --------------------------------------------------
 # PDF
@@ -179,16 +180,22 @@ row = data[0]
 
 #informe = [(k.replace("_"," ").title(), v) for k,v in row.items()]
 #st.table([{"Parámetro": k, "Valor": v} for k,v in informe])
-st.subheader("📋 Información general")
 
-st.dataframe([
+
+
+
+df_info = pd.DataFrame([
     {"Parámetro": "Usuario", "Valor": row["usuario"]},
     {"Parámetro": "Sitio", "Valor": row["sitio"]},
     {"Parámetro": "Fecha de muestreo", "Valor": row["fecha_muestreo"]},
     {"Parámetro": "Número de laboratorio", "Valor": row["numero_laboratorio"]},
     {"Parámetro": "Profundidad", "Valor": row["profundidad"]},
     {"Parámetro": "Uso actual", "Valor": row["uso_actual"]},
-],
+])
+
+st.subheader("📋 Información general")
+st.dataframe(
+    df_info,
     use_container_width=True,
     hide_index=True
 )
@@ -243,10 +250,7 @@ st.dataframe([
     hide_index=True
 )
 
-pdf_buffer = generar_pdf_informe(
-    informe,
-    f"Informe de análisis de suelo – {sitio_sel['codigo_sitio']}"
-)
+
 # --------------------------------------------------
 # INFORME PLANO SOLO PARA PDF
 # --------------------------------------------------
@@ -280,6 +284,11 @@ informe = [
     ("EAS", row["eas"]),
     ("Boro", row["boro"]),
 ]
+pdf_buffer = generar_pdf_informe(
+    informe,
+    f"Informe de análisis de suelo – {sitio_sel['codigo_sitio']}"
+)
+
 st.download_button(
     "📄 Descargar informe PDF",
     pdf_buffer,
