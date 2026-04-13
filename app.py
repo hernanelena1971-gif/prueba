@@ -5,7 +5,6 @@ from streamlit_folium import st_folium
 from io import BytesIO
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
-from streamlit.components.v1 import html
 
 # ==================================================
 # CONFIGURACIÓN GENERAL
@@ -18,13 +17,23 @@ st.set_page_config(
 # ==================================================
 # SUPABASE
 # ==================================================
-def get_supabase_client():
+def get_supabase_client(access_token=None):
+    if access_token:
+        return create_client(
+            st.secrets["SUPABASE_URL"],
+            st.secrets["SUPABASE_ANON_KEY"],
+            options={
+                "global": {
+                    "headers": {
+                        "Authorization": f"Bearer {access_token}"
+                    }
+                }
+            }
+        )
     return create_client(
         st.secrets["SUPABASE_URL"],
         st.secrets["SUPABASE_ANON_KEY"]
     )
-
-supabase = get_supabase_client()
 
 # ==================================================
 # ESTADO DE SESIÓN
@@ -35,98 +44,88 @@ if "session" not in st.session_state:
 if "sitio_id" not in st.session_state:
     st.session_state.sitio_id = None
 
-if "supabase_tokens" not in st.session_state:
-    st.session_state.supabase_tokens = None
-
 # ==================================================
-# CAPTURAR TOKENS DESDE URL (#hash) CON JS
+# LOGIN (EMAIL + PASSWORD)
 # ==================================================
-html(
-    """
-    <script>
-    (function() {
-        const hash = window.location.hash.substring(1);
-        if (!hash) return;
-
-        const params = new URLSearchParams(hash);
-        const data = {};
-        for (const [k, v] of params.entries()) {
-            data[k] = v;
-        }
-
-        window.parent.postMessage(
-            { type: "SUPABASE_AUTH", payload: data },
-            "*"
-        );
-    })();
-    </script>
-    """,
-    height=0
-)
-
-# ==================================================
-# LEER TOKENS CAPTURADOS Y CREAR SESIÓN
-# ==================================================
-def handle_magic_link_login():
-    tokens = st.session_state.get("supabase_tokens")
-    if not tokens:
-        return
-
-    if "access_token" in tokens:
-        supabase.auth.set_session(
-            tokens["access_token"],
-            tokens.get("refresh_token")
-        )
-        st.session_state.session = supabase.auth.get_session()
-        st.session_state.supabase_tokens = None
-        st.rerun()
-
-handle_magic_link_login()
-
-# ==================================================
-# LOGIN CON MAGIC LINK
-# ==================================================
-session = supabase.auth.get_session()
-if session and session.user:
-    st.session_state.session = session
-else:
-    st.session_state.session = None
-
 if st.session_state.session is None:
-    st.title("🔐 Acceso a resultados de análisis")
+    st.title("🔐 Acceso al sistema")
 
     email = st.text_input("Email")
+    password = st.text_input("Contraseña", type="password")
 
-    if st.button("📨 Enviar link de acceso"):
-        if not email:
-            st.warning("Ingresá tu email")
-        else:
-            try:
-                supabase.auth.sign_in_with_otp(
-                    {
-                        "email": email,
-                        "options": {
-                            "emailRedirectTo": "https://supabasesuelos.streamlit.app"
-                        }
-                    }
-                )
-                st.success(
-                    "✅ Te enviamos un mail con el link de acceso.\n\n"
-                    "Abrí tu correo y hacé click en el link para ingresar."
-                )
-            except Exception as e:
-                st.error("No se pudo enviar el link de acceso")
-                st.exception(e)
+    if st.button("Ingresar"):
+        try:
+            supabase = get_supabase_client()
+            res = supabase.auth.sign_in_with_password({
+                "email": email,
+                "password": password
+            })
+            st.session_state.session = res.session
+            st.rerun()
+        except Exception:
+            st.error("Email o contraseña incorrectos")
 
     st.stop()
 
 # ==================================================
 # USUARIO AUTENTICADO
 # ==================================================
+session = st.session_state.session
+supabase = get_supabase_client(session.access_token)
 user = supabase.auth.get_user()
 
+# ==================================================
+# OBLIGAR CAMBIO DE CONTRASEÑA (PRIMER LOGIN)
+# ==================================================
+perfil = (
+    supabase
+    .table("perfiles")
+    .select("must_change_password")
+    .eq("user_id", user.user.id)
+    .single()
+    .execute()
+).data
+
+if perfil["must_change_password"]:
+    st.title("🔑 Primer ingreso")
+
+    st.info(
+        "Por seguridad, debés cambiar la contraseña temporal antes de continuar."
+    )
+
+    new_pass = st.text_input("Nueva contraseña", type="password")
+    confirm_pass = st.text_input("Confirmar contraseña", type="password")
+
+    if st.button("Cambiar contraseña"):
+        if not new_pass or not confirm_pass:
+            st.warning("Completá ambos campos")
+        elif new_pass != confirm_pass:
+            st.error("Las contraseñas no coinciden")
+        elif len(new_pass) < 8:
+            st.error("La contraseña debe tener al menos 8 caracteres")
+        else:
+            try:
+                supabase.auth.update_user({
+                    "password": new_pass
+                })
+
+                supabase.table("perfiles").update({
+                    "must_change_password": False
+                }).eq("user_id", user.user.id).execute()
+
+                st.success("✅ Contraseña actualizada correctamente")
+                st.rerun()
+            except Exception as e:
+                st.error("No se pudo actualizar la contraseña")
+                st.exception(e)
+
+    st.stop()
+
+# ==================================================
+# APLICACIÓN NORMAL
+# ==================================================
 st.title("🗺️ Sitios y análisis de suelos")
-st.caption(f"Usuario autenticado: {user.user.email}")
+st.caption(f"Usuario: {user.user.email}")
 
 if st.button("🚪 Cerrar sesión"):
     supabase.auth.sign_out()
@@ -191,25 +190,16 @@ st_folium(m, height=500)
 # ==================================================
 # ANÁLISIS DEL SITIO
 # ==================================================
-if st.session_state.sitio_id is None:
-    st.info("Seleccioná un sitio para ver el análisis.")
-    st.stop()
-
 st.subheader(f"🧪 Análisis – Sitio {sitio_sel['codigo_sitio']}")
 
-try:
-    data = (
-        supabase
-        .rpc(
-            "get_informe_suelo_por_sitio",
-            {"p_sitio_id": int(st.session_state.sitio_id)}
-        )
-        .execute()
-    ).data
-except Exception as e:
-    st.error("❌ Error ejecutando el informe")
-    st.code(str(e))
-    st.stop()
+data = (
+    supabase
+    .rpc(
+        "get_informe_suelo_por_sitio",
+        {"p_sitio_id": int(st.session_state.sitio_id)}
+    )
+    .execute()
+).data
 
 if not data:
     st.info("No hay análisis disponibles.")
@@ -218,7 +208,7 @@ if not data:
 row = data[0]
 
 # ==================================================
-# INFORME COMPLETO
+# INFORME
 # ==================================================
 informe = [
     ("Usuario", row["usuario"]),
