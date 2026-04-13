@@ -15,7 +15,7 @@ st.set_page_config(
 )
 
 # ==================================================
-# SUPABASE – UN SOLO CLIENTE (MUY IMPORTANTE)
+# SUPABASE — UN SOLO CLIENTE (MUY IMPORTANTE)
 # ==================================================
 supabase = create_client(
     st.secrets["SUPABASE_URL"],
@@ -56,21 +56,41 @@ if st.session_state.session is None:
 # ==================================================
 # USUARIO AUTENTICADO
 # ==================================================
-user = supabase.auth.get_user()
+user_response = supabase.auth.get_user()
+
+if not user_response or not user_response.user:
+    st.error("No se pudo obtener el usuario autenticado")
+    st.stop()
+
+# ✅ MUY IMPORTANTE: el user es un DICcionario
+auth_user_id = user_response.user["id"]
+user_email = user_response.user.get("email", "")
 
 # ==================================================
-# OBLIGAR CAMBIO DE CONTRASEÑA (PRIMER LOGIN)
+# PERFIL — SOPORTA USUARIOS VIEJOS Y NUEVOS
 # ==================================================
-perfil = (
+perfil_res = (
     supabase
     .table("perfiles")
     .select("must_change_password")
-    .eq("user_id", user.user.id)
-    .single()
+    .eq("user_id", auth_user_id)
     .execute()
-).data
+)
 
-if perfil and perfil["must_change_password"]:
+# ✅ Si el perfil NO existe (usuarios antiguos), lo creamos
+if not perfil_res.data:
+    supabase.table("perfiles").insert({
+        "user_id": auth_user_id,
+        "must_change_password": False  # usuarios históricos NO forzados
+    }).execute()
+    must_change_password = False
+else:
+    must_change_password = perfil_res.data[0]["must_change_password"]
+
+# ==================================================
+# OBLIGAR CAMBIO DE CONTRASEÑA SOLO SI CORRESPONDE
+# ==================================================
+if must_change_password:
     st.title("🔑 Primer ingreso")
 
     st.info(
@@ -95,7 +115,7 @@ if perfil and perfil["must_change_password"]:
 
                 supabase.table("perfiles").update({
                     "must_change_password": False
-                }).eq("user_id", user.user.id).execute()
+                }).eq("user_id", auth_user_id).execute()
 
                 st.success("✅ Contraseña actualizada correctamente")
                 st.rerun()
@@ -109,7 +129,7 @@ if perfil and perfil["must_change_password"]:
 # APLICACIÓN NORMAL
 # ==================================================
 st.title("🗺️ Sitios y análisis de suelos")
-st.caption(f"Usuario: {user.user.email}")
+st.caption(f"Usuario: {user_email}")
 
 if st.button("🚪 Cerrar sesión"):
     supabase.auth.sign_out()
@@ -192,7 +212,7 @@ if not data:
 row = data[0]
 
 # ==================================================
-# INFORME
+# INFORME COMPLETO
 # ==================================================
 informe = [
     ("Usuario", row["usuario"]),
@@ -233,8 +253,7 @@ st.table([{"Parámetro": k, "Valor": v} for k, v in informe])
 def generar_pdf_informe(informe, titulo):
     buffer = BytesIO()
     c = canvas.Canvas(buffer, pagesize=A4)
-    width, height = A4
-    y = height - 50
+    y = A4[1] - 50
 
     c.setFont("Helvetica-Bold", 14)
     c.drawString(50, y, titulo)
@@ -244,7 +263,7 @@ def generar_pdf_informe(informe, titulo):
     for k, v in informe:
         if y < 50:
             c.showPage()
-            y = height - 50
+            y = A4[1] - 50
         c.drawString(50, y, f"{k}: {v}")
         y -= 14
 
