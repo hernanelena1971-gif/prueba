@@ -44,6 +44,25 @@ st.set_page_config(
     page_title="Suelos – Sitios y análisis",
     layout="wide"
 )
+# --------------------------------------------------
+# PKCE: intercambio de code por sesión
+# --------------------------------------------------
+params = st.experimental_get_query_params()
+
+if "code" in params:
+    try:
+        supabase.auth.exchange_code_for_session(params["code"][0])
+        st.success("✅ Acceso validado, ingresando...")
+        st.experimental_set_query_params()  # limpia la URL
+        st.rerun()
+    except Exception as e:
+        st.error("❌ No se pudo validar el acceso")
+        st.exception(e)
+
+
+
+
+
 
 # --------------------------------------------------
 # Supabase
@@ -74,15 +93,8 @@ if "session" not in st.session_state:
     st.session_state.session = None
 
 
-
-
-
-
-
-
-
 # --------------------------------------------------
-# LOGIN CON MAGIC LINK
+# LOGIN CON MAGIC LINK (PKCE)
 # --------------------------------------------------
 if st.session_state.session is None:
     st.title("🔐 Acceso a resultados")
@@ -94,12 +106,16 @@ if st.session_state.session is None:
             st.warning("Ingresá tu email")
         else:
             try:
-                supabase.auth.sign_in_with_otp({
-                    "email": email,
-                    "options": {
-                        "emailRedirectTo": "https://supabasesuelos.streamlit.app"
-                    }
-                })
+                supabase.auth.sign_in_with_otp(
+                    {
+                        "email": email,
+                        "options": {
+                            "emailRedirectTo": "https://supabasesuelos.streamlit.app",
+                            "shouldCreateUser": True
+                        }
+                    },
+                    flow_type="pkce"
+                )
                 st.success(
                     "✅ Te enviamos un mail con el link de acceso.\n\n"
                     "Abrí tu correo y hacé click en el link para ingresar."
