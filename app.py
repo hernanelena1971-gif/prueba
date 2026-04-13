@@ -190,8 +190,43 @@ st.table([
     {"Parámetro": "Uso actual", "Valor": row["uso_actual"]},
 ])
 
+st.subheader("🧱 Textura del suelo")
 
+st.table([
+    {"Parámetro": "Arena (%)", "Valor": row["arena"]},
+    {"Parámetro": "Limo (%)", "Valor": row["limo"]},
+    {"Parámetro": "Arcilla (%)", "Valor": row["arcilla"]},
+    {"Parámetro": "Clasificación textural", "Valor": row["textura"]},
+])
 
+st.subheader("🧪 Propiedades químicas")
+
+st.table([
+    {"Parámetro": "pH (pasta)", "Valor": row["ph"]},
+    {"Parámetro": "Conductividad eléctrica", "Valor": row["conductividad"]},
+    {"Parámetro": "Carbonato Ca + Mg", "Valor": row["carbonato_ca_mg"]},
+])
+
+st.subheader("🌱 Fertilidad y nutrientes")
+
+st.table([
+    {"Parámetro": "Carbono orgánico", "Valor": row["carbono_organico"]},
+    {"Parámetro": "Materia orgánica", "Valor": row["materia_organica"]},
+    {"Parámetro": "Nitrógeno total", "Valor": row["nitrogeno_total"]},
+    {"Parámetro": "Relación C/N", "Valor": row["relacion_cn"]},
+    {"Parámetro": "Fósforo", "Valor": row["fosforo"]},
+    {"Parámetro": "Potasio", "Valor": row["potasio"]},
+    {"Parámetro": "Calcio", "Valor": row["calcio"]},
+])
+st.subheader("⚠️ Sales y otros parámetros")
+
+st.table([
+    {"Parámetro": "Sodio intercambiable", "Valor": row["sodio"]},
+    {"Parámetro": "Cloruro (extracto)", "Valor": row["cloruro_extracto"]},
+    {"Parámetro": "Cloruro (suelo seco)", "Valor": row["cloruro_suelo_seco"]},
+    {"Parámetro": "EAS", "Valor": row["eas"]},
+    {"Parámetro": "Boro", "Valor": row["boro"]},
+])
 
 pdf_buffer = generar_pdf_informe(
     informe,
