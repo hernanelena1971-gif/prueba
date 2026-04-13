@@ -70,9 +70,25 @@ usuario_res = (
     .table("usuarios")
     .select("id,nombre")
     .eq("auth_user_id", auth_user_id)
-    .single()
     .execute()
 )
+
+if not usuario_res.data:
+    st.title("🗺️ Sitios y análisis de suelos")
+    st.caption(f"Usuario autenticado: {user_email}")
+    st.info("No hay sitios asociados a este usuario.")
+
+    if st.button("Cerrar sesión"):
+        supabase.auth.sign_out()
+        st.session_state.clear()
+        st.rerun()
+
+    st.stop()
+
+usuario = usuario_res.data[0]
+usuario_id = usuario["id"]
+usuario_nombre = usuario["nombre"]
+
 
 st.title("🗺️ Sitios y análisis de suelos")
 st.caption(f"Usuario autenticado: {user_email}")
