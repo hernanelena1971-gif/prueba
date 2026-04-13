@@ -54,7 +54,7 @@ if not auth_user_id:
 
 st.success("Login OK ✅")
 st.write("Auth user id:", auth_user_id)
-st.write("Email:", getattr(user, "email", user.get("email", "")))
+st.write("Email:", user.email)
 
 if st.button("Logout"):
     supabase.auth.sign_out()
