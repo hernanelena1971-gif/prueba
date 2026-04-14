@@ -254,10 +254,10 @@ mostrar_tabla("⚠️ Sales y otros parámetros", [
 ])
 
 # --------------------------------------------------
-    # CREAR LOGOS UNA SOLA VEZ (COMPARTIDOS)
-    # --------------------------------------------------
-    logo_inta = img(os.path.join(BASE_DIR, "logo_inta.png"))
-    logo_arg = img(os.path.join(BASE_DIR, "logo_argeninta.png"))
+# CREAR LOGOS UNA SOLA VEZ (COMPARTIDOS)
+# --------------------------------------------------
+logo_inta = img(os.path.join(BASE_DIR, "logo_inta.png"))
+logo_arg = img(os.path.join(BASE_DIR, "logo_argeninta.png"))
 
 # ==================================================
 # PDF
