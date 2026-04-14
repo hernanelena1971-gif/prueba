@@ -138,6 +138,7 @@ if sitio_sel["id"] != st.session_state.sitio_id:
 # ==================================================
 # MAPA — zoom a todos los sitios + click selecciona
 # ==================================================
+mapa = None  # ✅ IMPORTANTE
 lats = [s["latitud"] for s in sitios if s["latitud"] is not None]
 lons = [s["longitud"] for s in sitios if s["longitud"] is not None]
 
