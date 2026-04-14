@@ -484,13 +484,13 @@ for a in aclaraciones:
     elements.append(Paragraph(f"- {a}", styles["Normal"]))
     elements.append(Spacer(1, 4))
     
-    doc.build(
+doc.build(
     elements,
     onFirstPage=header_footer,
     onLaterPages=header_footer
     )
-    buffer.seek(0)
-    return buffer
+buffer.seek(0)
+return buffer
 
 
 # ==================================================
