@@ -276,13 +276,14 @@ def generar_pdf_informe(row, codigo_sitio):
     # --------------------------------------------------
     # LOGOS (proporcionales, estables)
     # --------------------------------------------------
-    def img(path, target_width=110):
+    def img(path, target_height=55, min_width=60):
         if not os.path.exists(path):
-            return Spacer(target_width, 55)
+            return Spacer(min_width, target_height)
+    
         i = Image(path)
-        ratio = target_width / i.imageWidth
-        i.drawWidth = target_width
-        i.drawHeight = i.imageHeight * ratio
+        ratio = target_height / i.imageHeight
+        i.drawHeight = target_height
+        i.drawWidth = i.imageWidth * ratio
         return i
 
     header = Table(
