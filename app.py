@@ -214,7 +214,7 @@ def mostrar_tabla(titulo, filas):
 
 
 mostrar_tabla("📋 Información general", [
-    ["Usuario", row["usuario"]],
+    ["Solicitante", row["solicitante"]],
     ["Sitio", row["sitio"]],
     ["Fecha de muestreo", row["fecha_muestreo"]],
     ["Número de laboratorio", row["numero_laboratorio"]],
