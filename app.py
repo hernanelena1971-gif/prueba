@@ -266,103 +266,103 @@ header = Table(
 )
 
 
-    header.setStyle(TableStyle([
-        ("ALIGN", (0, 0), (0, 0), "LEFT"),
-        ("ALIGN", (1, 0), (1, 0), "RIGHT"),
+header.setStyle(TableStyle([
+    ("ALIGN", (0, 0), (0, 0), "LEFT"),
+    ("ALIGN", (1, 0), (1, 0), "RIGHT"),
+    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+]))
+
+elements.append(header)
+elements.append(Spacer(1, 18))
+
+# --------------------------------------------------
+# TÍTULO
+# --------------------------------------------------
+elements.append(Paragraph(
+    f"<b>Informe de análisis de suelo</b><br/>Sitio: {codigo_sitio}",
+    styles["Normal"]
+))
+elements.append(Spacer(1, 14))
+
+# --------------------------------------------------
+# FUNCIÓN TABLAS
+# --------------------------------------------------
+def tabla(titulo, filas):
+    elements.append(Paragraph(f"<b>{titulo}</b>", styles["Normal"]))
+    elements.append(Spacer(1, 6))
+
+    t = Table(
+        [["Parámetro", "Valor"]] + filas,
+        colWidths=[260, 190]
+    )
+    t.setStyle(TableStyle([
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+        ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
+        ("ALIGN", (1, 1), (-1, -1), "CENTER"),
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
     ]))
 
-    elements.append(header)
-    elements.append(Spacer(1, 18))
+    elements.append(t)
+    elements.append(Spacer(1, 12))
 
-    # --------------------------------------------------
-    # TÍTULO
-    # --------------------------------------------------
-    elements.append(Paragraph(
-        f"<b>Informe de análisis de suelo</b><br/>Sitio: {codigo_sitio}",
-        styles["Normal"]
-    ))
-    elements.append(Spacer(1, 14))
+# --------------------------------------------------
+# TODAS LAS SECCIONES (COMPLETO)
+# --------------------------------------------------
+tabla("Información general", [
+    ["Usuario", row["usuario"]],
+    ["Sitio", row["sitio"]],
+    ["Fecha de muestreo", row["fecha_muestreo"]],
+    ["Número de laboratorio", row["numero_laboratorio"]],
+    ["Profundidad", row["profundidad"]],
+    ["Uso actual", row["uso_actual"]],
+    ["Uso anterior", row.get("uso_anterior", "")],
+    ["Uso posterior", row.get("uso_posterior", "")],
+    ["Observaciones", row.get("observaciones", "")],
+])
 
-    # --------------------------------------------------
-    # FUNCIÓN TABLAS
-    # --------------------------------------------------
-    def tabla(titulo, filas):
-        elements.append(Paragraph(f"<b>{titulo}</b>", styles["Normal"]))
-        elements.append(Spacer(1, 6))
+tabla("Textura del suelo", [
+    ["Arena (%)", row["arena"]],
+    ["Limo (%)", row["limo"]],
+    ["Arcilla (%)", row["arcilla"]],
+    ["Clasificación textural", row["textura"]],
+])
 
-        t = Table(
-            [["Parámetro", "Valor"]] + filas,
-            colWidths=[260, 190]
-        )
-        t.setStyle(TableStyle([
-            ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
-            ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
-            ("ALIGN", (1, 1), (-1, -1), "CENTER"),
-            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ]))
+tabla("Propiedades químicas", [
+    ["pH", row["ph"]],
+    ["Conductividad eléctrica", row["conductividad"]],
+    ["Carbonato Ca + Mg", row["carbonato_ca_mg"]],
+])
 
-        elements.append(t)
-        elements.append(Spacer(1, 12))
+tabla("Fertilidad y nutrientes", [
+    ["Carbono orgánico", row["carbono_organico"]],
+    ["Materia orgánica", row["materia_organica"]],
+    ["Nitrógeno total", row["nitrogeno_total"]],
+    ["Relación C/N", row["relacion_cn"]],
+    ["Fósforo", row["fosforo"]],
+    ["Potasio", row["potasio"]],
+    ["Calcio", row["calcio"]],
+])
 
-    # --------------------------------------------------
-    # TODAS LAS SECCIONES (COMPLETO)
-    # --------------------------------------------------
-    tabla("Información general", [
-        ["Usuario", row["usuario"]],
-        ["Sitio", row["sitio"]],
-        ["Fecha de muestreo", row["fecha_muestreo"]],
-        ["Número de laboratorio", row["numero_laboratorio"]],
-        ["Profundidad", row["profundidad"]],
-        ["Uso actual", row["uso_actual"]],
-        ["Uso anterior", row.get("uso_anterior", "")],
-        ["Uso posterior", row.get("uso_posterior", "")],
-        ["Observaciones", row.get("observaciones", "")],
-    ])
+tabla("Sales y otros parámetros", [
+    ["Sodio", row["sodio"]],
+    ["Cloruro (extracto)", row["cloruro_extracto"]],
+    ["Cloruro (suelo seco)", row["cloruro_suelo_seco"]],
+    ["EAS", row["eas"]],
+    ["Boro", row["boro"]],
+])
 
-    tabla("Textura del suelo", [
-        ["Arena (%)", row["arena"]],
-        ["Limo (%)", row["limo"]],
-        ["Arcilla (%)", row["arcilla"]],
-        ["Clasificación textural", row["textura"]],
-    ])
+# --------------------------------------------------
+# PIE
+# --------------------------------------------------
+elements.append(Spacer(1, 18))
+elements.append(Paragraph(
+    "<i>Los análisis se realizan sobre muestras extraídas por el solicitante.</i>",
+    styles["Normal"]
+))
 
-    tabla("Propiedades químicas", [
-        ["pH", row["ph"]],
-        ["Conductividad eléctrica", row["conductividad"]],
-        ["Carbonato Ca + Mg", row["carbonato_ca_mg"]],
-    ])
-
-    tabla("Fertilidad y nutrientes", [
-        ["Carbono orgánico", row["carbono_organico"]],
-        ["Materia orgánica", row["materia_organica"]],
-        ["Nitrógeno total", row["nitrogeno_total"]],
-        ["Relación C/N", row["relacion_cn"]],
-        ["Fósforo", row["fosforo"]],
-        ["Potasio", row["potasio"]],
-        ["Calcio", row["calcio"]],
-    ])
-
-    tabla("Sales y otros parámetros", [
-        ["Sodio", row["sodio"]],
-        ["Cloruro (extracto)", row["cloruro_extracto"]],
-        ["Cloruro (suelo seco)", row["cloruro_suelo_seco"]],
-        ["EAS", row["eas"]],
-        ["Boro", row["boro"]],
-    ])
-
-    # --------------------------------------------------
-    # PIE
-    # --------------------------------------------------
-    elements.append(Spacer(1, 18))
-    elements.append(Paragraph(
-        "<i>Los análisis se realizan sobre muestras extraídas por el solicitante.</i>",
-        styles["Normal"]
-    ))
-
-    doc.build(elements)
-    buffer.seek(0)
-    return buffer
+doc.build(elements)
+buffer.seek(0)
+return buffer
 
 
 # ==================================================
