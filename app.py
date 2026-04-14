@@ -8,25 +8,31 @@ from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 import pandas as pd
 
+
 from reportlab.platypus import (
-    SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
+    SimpleDocTemplate, Table, TableStyle,
+    Paragraph, Spacer, Image
 )
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 
-from reportlab.platypus import Spacer
-from reportlab.lib.units import cm
 import os
+from io import BytesIO
 
 
-def safe_image(path, width, height):
+# --------------------------------------------------
+# UTILIDAD SEGURA PARA IMÁGENES (NO ROMPE)
+# --------------------------------------------------
+def safe_image(path, width, min_height=40):
     if path and os.path.exists(path):
-        return Image(path, width=width, height=height)
-    # si no existe, devuelve un espacio vacío
-    return Spacer(width, height)
+        return Image(path, width=width, kind="proportional")
+    return Spacer(width, min_height)
 
 
+# --------------------------------------------------
+# PDF
+# --------------------------------------------------
 def generar_pdf_informe(row, codigo_sitio):
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     buffer = BytesIO()
@@ -41,55 +47,45 @@ def generar_pdf_informe(row, codigo_sitio):
     )
 
     styles = getSampleStyleSheet()
-    style_title = ParagraphStyle(
-        "title",
-        parent=styles["Title"],
-        alignment=1,
-        fontSize=14
-    )
 
     elements = []
 
     # --------------------------------------------------
-    # ENCABEZADO CON LOGOS
+    # ENCABEZADO CON LOGOS (SIN TEXTO, PROPORCIONAL)
     # --------------------------------------------------
-    logo_arg = Image(
-    os.path.join(BASE_DIR, "logo_argeninta.png"),
-    90,
-    40
-    )
-    logo_inta = Image(
-    os.path.join(BASE_DIR, "logo_inta.png"),
-    90,
-    40
-    )
+    logo_inta_path = os.path.join(BASE_DIR, "logo_inta.png")
+    logo_arg_path = os.path.join(BASE_DIR, "logo_argeninta.png")
+
+    logo_inta = safe_image(logo_inta_path, width=120)
+    logo_arg = safe_image(logo_arg_path, width=120)
 
     header_table = Table(
-        [[logo_arg, Paragraph(
-            "<b>INFORME DE ANÁLISIS DE SUELO</b><br/>"
-            "Laboratorio de Suelos – EEA Salta INTA",
-            styles["Normal"]
-        ), logo_inta]],
-        colWidths=[100, 300, 100]
+        [[logo_inta, logo_arg]],
+        colWidths=[260, 260]
     )
 
     header_table.setStyle(TableStyle([
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
         ("ALIGN", (0, 0), (0, 0), "LEFT"),
-        ("ALIGN", (2, 0), (2, 0), "RIGHT"),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 12),
+        ("ALIGN", (1, 0), (1, 0), "RIGHT"),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 14),
     ]))
 
     elements.append(header_table)
-    elements.append(Spacer(1, 15))
+    elements.append(Spacer(1, 20))
 
+    # --------------------------------------------------
+    # TITULO / SITIO
+    # --------------------------------------------------
     elements.append(
         Paragraph(
-            f"<b>Sitio:</b> {codigo_sitio}",
+            f"<b>Informe de análisis de suelo</b><br/>Sitio: {codigo_sitio}",
             styles["Normal"]
         )
     )
-    elements.append(Spacer(1, 12))
+
+    elements.append(Spacer(1, 14))
+
 
     # --------------------------------------------------
     # FUNCIÓN AUXILIAR PARA TABLAS
