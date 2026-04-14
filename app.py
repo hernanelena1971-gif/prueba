@@ -291,7 +291,8 @@ def generar_pdf_informe(row, codigo_sitio):
         i.drawWidth = i.imageWidth * ratio
         return i
 
-    header = Table(    header
+    header = Table(
+        [[
             logo_inta,
             logo_arg
         ]],
