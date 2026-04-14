@@ -244,7 +244,7 @@ mostrar_tabla("🌱 Fertilidad y nutrientes", [
     ["Potasio", row["potasio"]],
     ["Calcio", row["calcio"]],
 ])
-
+elements.append(PageBreak())
 mostrar_tabla("⚠️ Sales y otros parámetros", [
     ["Sodio", row["sodio"]],
     ["Cloruro (extracto)", row["cloruro_extracto"]],
