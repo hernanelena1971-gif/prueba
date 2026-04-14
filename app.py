@@ -291,24 +291,7 @@ def generar_pdf_informe(row, codigo_sitio):
     logo_inta = img(os.path.join(BASE_DIR, "logo_inta.png"))
     logo_arg = img(os.path.join(BASE_DIR, "logo_argeninta.png"))
 
-    header = Table(
-        [[
-            logo_inta,
-            logo_arg
-        ]],
-        colWidths=[260, 260],
-        rowHeights=[70]
-    )
-
-
-    header.setStyle(TableStyle([
-        ("ALIGN", (0, 0), (0, 0), "LEFT"),
-        ("ALIGN", (1, 0), (1, 0), "RIGHT"),
-        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-    ]))
-
-    elements.append(header)
-    elements.append(Spacer(1, 18))
+    
 
     # ==================================================
     # HEADER + FOOTER (todas las páginas)
