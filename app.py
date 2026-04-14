@@ -438,14 +438,52 @@ def generar_pdf_informe(row, codigo_sitio):
     ])
 
     # --------------------------------------------------
-    # PIE
-    # --------------------------------------------------
-    elements.append(Spacer(1, 16))
-    elements.append(Paragraph(
-        "<i>Los análisis se realizan sobre muestras extraídas por el solicitante.</i>",
-        styles["Normal"]
-    ))
+# TÉCNICAS EMPLEADAS
+# --------------------------------------------------
+elements.append(Spacer(1, 20))
+elements.append(Paragraph(
+    "<b>Técnicas empleadas</b>",
+    styles["Normal"]
+))
+elements.append(Spacer(1, 8))
 
+tecnicas = [
+    "Textura: Bouyoucos",
+    "Materia Orgánica: micro Walkley-Black",
+    "Nitrógeno total: micro Kjeldahl",
+    "Fósforo \"extractable\": Bray-Kurtz Nº I (modificada)",
+    "Cationes de intercambio: extracción con Acetato de Amonio 1.0 N a pH 7.0",
+    "Cuantificación por Absorción Atómica",
+    "<i>n.d.: no detectado</i>",
+]
+
+for t in tecnicas:
+    elements.append(Paragraph(f"- {t}", styles["Normal"]))
+    elements.append(Spacer(1, 4))
+
+
+# --------------------------------------------------
+# ACLARACIONES
+# --------------------------------------------------
+elements.append(Spacer(1, 16))
+elements.append(Paragraph(
+    "<b>Aclaraciones</b>",
+    styles["Normal"]
+))
+elements.append(Spacer(1, 8))
+
+aclaraciones = [
+    "Los análisis se realizan sobre muestras extraídas por el solicitante.",
+    "Las muestras permanecerán almacenadas por 3 meses; transcurrido este período, "
+    "el Laboratorio no se responsabiliza por el destino de las mismas.",
+    "Las determinaciones de Ca y Mg \"intercambiable\" no se realizan en muestras que "
+    "contienen Carbonato de Ca y Mg.",
+]
+
+for a in aclaraciones:
+    elements.append(Paragraph(f"- {a}", styles["Normal"]))
+    elements.append(Spacer(1, 4))
+    
     doc.build(
     elements,
     onFirstPage=header_footer,
