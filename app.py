@@ -255,14 +255,16 @@ def generar_pdf_informe(row, codigo_sitio):
     img.drawHeight = img.imageHeight * ratio
     return img
 
-    header = Table(
-        [[
-            img(os.path.join(BASE_DIR, "logo_inta.png")),
-            img(os.path.join(BASE_DIR, "logo_argeninta.png"))
-        ]],
-        colWidths=[260, 260],
-        rowHeights=[55]
-    )
+    
+header = Table(
+    [[
+        img(os.path.join(BASE_DIR, "logo_inta.png")),
+        img(os.path.join(BASE_DIR, "logo_argeninta.png"))
+    ]],
+    colWidths=[260, 260],
+    rowHeights=[70]
+)
+
 
     header.setStyle(TableStyle([
         ("ALIGN", (0, 0), (0, 0), "LEFT"),
