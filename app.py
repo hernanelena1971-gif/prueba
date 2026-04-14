@@ -245,10 +245,15 @@ def generar_pdf_informe(row, codigo_sitio):
     # --------------------------------------------------
     # LOGOS (estable, sin bug)
     # --------------------------------------------------
-    def img(path):
-        if os.path.exists(path):
-            return Image(path, width=110, height=45)
-        return Spacer(110, 45)
+    def img(path, target_width=110, min_height=45):
+    if not os.path.exists(path):
+        return Spacer(target_width, min_height)
+
+    img = Image(path)
+    ratio = target_width / img.imageWidth
+    img.drawWidth = target_width
+    img.drawHeight = img.imageHeight * ratio
+    return img
 
     header = Table(
         [[
