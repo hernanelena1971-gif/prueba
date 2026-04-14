@@ -138,25 +138,25 @@ if sitio_sel["id"] != st.session_state.sitio_id:
 # ==================================================
 # MAPA — zoom a todos los sitios + click selecciona
 # ==================================================
-mapa = None  # ✅ IMPORTANTE
+mapa = None
+
 lats = [s["latitud"] for s in sitios if s["latitud"] is not None]
 lons = [s["longitud"] for s in sitios if s["longitud"] is not None]
 
-# ✅ Crear mapa base SIN tiles fijos
 m = folium.Map(
-    location=[-24.8, -65.4],  # centro inicial
+    location=[-24.8, -65.4],
     zoom_start=8,
     tiles=None
 )
 
-# ✅ OpenStreetMap
+# OpenStreetMap
 folium.TileLayer(
     tiles="OpenStreetMap",
     name="Mapa (OSM)",
     control=True
 ).add_to(m)
 
-# ✅ Google Satélite
+# Google Satélite
 folium.TileLayer(
     tiles="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
     attr="Google",
@@ -165,7 +165,7 @@ folium.TileLayer(
     control=True
 ).add_to(m)
 
-# ✅ Botón "Ir a mi ubicación" (debajo del zoom)
+# Botón mi ubicación
 LocateControl(
     position="topleft",
     flyTo=True,
@@ -175,19 +175,35 @@ LocateControl(
     strings={"title": "Ir a mi ubicación"}
 ).add_to(m)
 
-# ✅ Ajuste automático a todos los sitios
+# Ajustar vista a todos los sitios
 if lats and lons:
     m.fit_bounds([
         [min(lats), min(lons)],
         [max(lats), max(lons)]
     ])
 
-# ✅ Marcadores
+# Marcadores
 for s in sitios:
     folium.Marker(
-        [s["latitud"], s["longitud"]],
+        location=[s["latitud"], s["longitud"]],
         tooltip=s["codigo_sitio"],
+        icon=folium.Icon(
+            color="red" if s["id"] == st.session_state.sitio_id else "blue"
+        )
+    ).add_to(m)
+
+# Selector de capas
+folium.LayerControl(collapsed=False).add_to(m)
+
+# ✅ RENDER DEL MAPA EN STREAMLIT (ESTO FALTABA)
+mapa = st_folium(
+    m,
+    width=1200,
+    height=550,
+    returned_objects=["last_object_clicked"],
+    key="mapa"
 )
+
 
 # --------------------------------------------------
 # CLICK EN MARCADOR → CAMBIA SITIO ACTIVO
