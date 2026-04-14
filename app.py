@@ -186,7 +186,7 @@ for s in sitios:
     folium.Marker(
         [s["latitud"], s["longitud"]],
         tooltip=s["codigo_sitio"],
-
+)
 
 # --------------------------------------------------
 # CLICK EN MARCADOR → CAMBIA SITIO ACTIVO
