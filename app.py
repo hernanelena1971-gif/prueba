@@ -15,6 +15,16 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 
+from reportlab.platypus import Spacer
+from reportlab.lib.units import cm
+import os
+
+
+def safe_image(path, width, height):
+    if path and os.path.exists(path):
+        return Image(path, width=width, height=height)
+    # si no existe, devuelve un espacio vacío
+    return Spacer(width, height)
 
 
 def generar_pdf_informe(row, codigo_sitio):
