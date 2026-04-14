@@ -253,6 +253,11 @@ mostrar_tabla("⚠️ Sales y otros parámetros", [
     ["Boro", row["boro"]],
 ])
 
+# --------------------------------------------------
+    # CREAR LOGOS UNA SOLA VEZ (COMPARTIDOS)
+    # --------------------------------------------------
+    logo_inta = img(os.path.join(BASE_DIR, "logo_inta.png"))
+    logo_arg = img(os.path.join(BASE_DIR, "logo_argeninta.png"))
 
 # ==================================================
 # PDF
@@ -286,14 +291,14 @@ def generar_pdf_informe(row, codigo_sitio):
         i.drawWidth = i.imageWidth * ratio
         return i
 
-    header = Table(
-        [[
-            img(os.path.join(BASE_DIR, "logo_inta.png")),
-            img(os.path.join(BASE_DIR, "logo_argeninta.png"))
+    header = Table(    header
+            logo_inta,
+            logo_arg
         ]],
         colWidths=[260, 260],
         rowHeights=[70]
     )
+
 
     header.setStyle(TableStyle([
         ("ALIGN", (0, 0), (0, 0), "LEFT"),
