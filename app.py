@@ -266,7 +266,7 @@ def generar_pdf_informe(row, codigo_sitio):
         pagesize=A4,
         leftMargin=40,
         rightMargin=40,
-        topMargin=40,
+        topMargin=90,
         bottomMargin=40,
     )
 
@@ -304,15 +304,85 @@ def generar_pdf_informe(row, codigo_sitio):
     elements.append(header)
     elements.append(Spacer(1, 18))
 
+    # ==================================================
+    # HEADER + FOOTER (todas las páginas)
+    # ==================================================
+    def header_footer(canvas, doc):
+        canvas.saveState()
+
+        # -------------------------
+        # HEADER (logos + línea)
+        # -------------------------
+        y = A4[1] - 50  # altura del encabezado
+
+        if logo_inta:
+            logo_inta.drawOn(canvas, 40, y)
+
+        if logo_arg:
+            logo_arg.drawOn(
+                canvas,
+                A4[0] - 40 - logo_arg.drawWidth,
+                y
+            )
+
+        # Línea horizontal gris
+        canvas.setStrokeColorRGB(0.7, 0.7, 0.7)
+        canvas.setLineWidth(1)
+        canvas.line(40, y - 8, A4[0] - 40, y - 8)
+
+        # -------------------------
+        # FOOTER INSTITUCIONAL
+        # -------------------------
+        canvas.setFont("Helvetica", 8)
+        canvas.setFillColorRGB(0.4, 0.4, 0.4)
+
+        canvas.drawString(
+            40,
+            45,
+            "E.E.A. SALTA INTA. RN. 68 - Km 172 - C.P. 4403"
+        )
+        canvas.drawString(
+            40,
+            34,
+            "Cerrillos / Salta | WhatsApp +54 9 11 6562-8753"
+        )
+        canvas.drawString(
+            40,
+            23,
+            "Email: eeasalta.lab@inta.gob.ar | https://www.argentina.gob.ar/inta"
+        )
+
+        # Número de página (estilo INTA)
+        canvas.drawRightString(
+            A4[0] - 40,
+            23,
+            f"Página {doc.page}"
+        )
+
+        canvas.restoreState()
+
+
+    
     # --------------------------------------------------
     # TÍTULO
     # --------------------------------------------------
+    elements.append(Spacer(1, 10))
     elements.append(Paragraph(
-        f"<b>Informe de análisis de suelo</b><br/>Sitio: {codigo_sitio}",
+        "<b>Laboratorio de Suelos, Agua y Fertilizantes - LabSAF</b><br/>"
+        "<b>Grupo Recursos Naturales</b>",
+        styles["Title"]
+    ))
+    elements.append(Spacer(1, 28))
+    
+    elements.append(Paragraph(
+        f"<b>Sitio:</b> {codigo_sitio}",
         styles["Normal"]
     ))
-    elements.append(Spacer(1, 12))
+    elements.append(Spacer(1, 20))
+    
 
+
+    
     # --------------------------------------------------
     # FUNCIÓN PARA TABLAS (PDF)
     # --------------------------------------------------
@@ -387,7 +457,11 @@ def generar_pdf_informe(row, codigo_sitio):
         styles["Normal"]
     ))
 
-    doc.build(elements)
+    doc.build(
+    elements,
+    onFirstPage=header_footer,
+    onLaterPages=header_footer
+    )
     buffer.seek(0)
     return buffer
 
