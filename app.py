@@ -18,6 +18,7 @@ from reportlab.lib import colors
 
 
 def generar_pdf_informe(row, codigo_sitio):
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     buffer = BytesIO()
 
     doc = SimpleDocTemplate(
@@ -42,8 +43,16 @@ def generar_pdf_informe(row, codigo_sitio):
     # --------------------------------------------------
     # ENCABEZADO CON LOGOS
     # --------------------------------------------------
-    logo_arg = Image("logo_argentina.png", width=90, height=40)
-    logo_inta = Image("logo_inta.png", width=90, height=40)
+    logo_arg = Image(
+    os.path.join(BASE_DIR, "logo_argentina.png"),
+    90,
+    40
+    )
+    logo_inta = Image(
+    os.path.join(BASE_DIR, "logo_inta.png"),
+    90,
+    40
+    )
 
     header_table = Table(
         [[logo_arg, Paragraph(
