@@ -242,11 +242,13 @@ def generar_pdf_informe(row, codigo_sitio):
     styles = getSampleStyleSheet()
     elements = []
 
+    # --------------------------------------------------
+    # LOGOS (estable, sin bug)
+    # --------------------------------------------------
     def img(path):
         if os.path.exists(path):
-            i = Image(path, width=120, height=50)
-            return i
-        return Spacer(120, 50)
+            return Image(path, width=110, height=45)
+        return Spacer(110, 45)
 
     header = Table(
         [[
@@ -254,7 +256,7 @@ def generar_pdf_informe(row, codigo_sitio):
             img(os.path.join(BASE_DIR, "logo_argeninta.png"))
         ]],
         colWidths=[260, 260],
-        rowHeights=[60]
+        rowHeights=[55]
     )
 
     header.setStyle(TableStyle([
@@ -264,35 +266,92 @@ def generar_pdf_informe(row, codigo_sitio):
     ]))
 
     elements.append(header)
-    elements.append(Spacer(1, 20))
+    elements.append(Spacer(1, 18))
 
+    # --------------------------------------------------
+    # TÍTULO
+    # --------------------------------------------------
     elements.append(Paragraph(
         f"<b>Informe de análisis de suelo</b><br/>Sitio: {codigo_sitio}",
         styles["Normal"]
     ))
-
     elements.append(Spacer(1, 14))
 
+    # --------------------------------------------------
+    # FUNCIÓN TABLAS
+    # --------------------------------------------------
     def tabla(titulo, filas):
         elements.append(Paragraph(f"<b>{titulo}</b>", styles["Normal"]))
+        elements.append(Spacer(1, 6))
+
         t = Table(
             [["Parámetro", "Valor"]] + filas,
-            colWidths=[250, 200]
+            colWidths=[260, 190]
         )
         t.setStyle(TableStyle([
             ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
             ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
             ("ALIGN", (1, 1), (-1, -1), "CENTER"),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
         ]))
-        elements.append(t)
-        elements.append(Spacer(1, 10))
 
+        elements.append(t)
+        elements.append(Spacer(1, 12))
+
+    # --------------------------------------------------
+    # TODAS LAS SECCIONES (COMPLETO)
+    # --------------------------------------------------
     tabla("Información general", [
         ["Usuario", row["usuario"]],
         ["Sitio", row["sitio"]],
         ["Fecha de muestreo", row["fecha_muestreo"]],
         ["Número de laboratorio", row["numero_laboratorio"]],
+        ["Profundidad", row["profundidad"]],
+        ["Uso actual", row["uso_actual"]],
+        ["Uso anterior", row.get("uso_anterior", "")],
+        ["Uso posterior", row.get("uso_posterior", "")],
+        ["Observaciones", row.get("observaciones", "")],
     ])
+
+    tabla("Textura del suelo", [
+        ["Arena (%)", row["arena"]],
+        ["Limo (%)", row["limo"]],
+        ["Arcilla (%)", row["arcilla"]],
+        ["Clasificación textural", row["textura"]],
+    ])
+
+    tabla("Propiedades químicas", [
+        ["pH", row["ph"]],
+        ["Conductividad eléctrica", row["conductividad"]],
+        ["Carbonato Ca + Mg", row["carbonato_ca_mg"]],
+    ])
+
+    tabla("Fertilidad y nutrientes", [
+        ["Carbono orgánico", row["carbono_organico"]],
+        ["Materia orgánica", row["materia_organica"]],
+        ["Nitrógeno total", row["nitrogeno_total"]],
+        ["Relación C/N", row["relacion_cn"]],
+        ["Fósforo", row["fosforo"]],
+        ["Potasio", row["potasio"]],
+        ["Calcio", row["calcio"]],
+    ])
+
+    tabla("Sales y otros parámetros", [
+        ["Sodio", row["sodio"]],
+        ["Cloruro (extracto)", row["cloruro_extracto"]],
+        ["Cloruro (suelo seco)", row["cloruro_suelo_seco"]],
+        ["EAS", row["eas"]],
+        ["Boro", row["boro"]],
+    ])
+
+    # --------------------------------------------------
+    # PIE
+    # --------------------------------------------------
+    elements.append(Spacer(1, 18))
+    elements.append(Paragraph(
+        "<i>Los análisis se realizan sobre muestras extraídas por el solicitante.</i>",
+        styles["Normal"]
+    ))
 
     doc.build(elements)
     buffer.seek(0)
