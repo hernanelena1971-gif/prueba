@@ -7,28 +7,175 @@ from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 import pandas as pd
 
-# --------------------------------------------------
-# PDF
-# --------------------------------------------------
-def generar_pdf_informe(informe, titulo):
+from reportlab.platypus import (
+    SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
+)
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+
+
+
+def generar_pdf_informe(row, codigo_sitio):
     buffer = BytesIO()
-    c = canvas.Canvas(buffer, pagesize=A4)
-    width, height = A4
 
-    y = height - 50
-    c.setFont("Helvetica-Bold", 14)
-    c.drawString(50, y, titulo)
-    y -= 30
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        rightMargin=40,
+        leftMargin=40,
+        topMargin=40,
+        bottomMargin=40
+    )
 
-    c.setFont("Helvetica", 10)
-    for parametro, valor in informe:
-        if y < 50:
-            c.showPage()
-            y = height - 50
-        c.drawString(50, y, f"{parametro}: {valor}")
-        y -= 15
+    styles = getSampleStyleSheet()
+    style_title = ParagraphStyle(
+        "title",
+        parent=styles["Title"],
+        alignment=1,
+        fontSize=14
+    )
 
-    c.save()
+    elements = []
+
+    # --------------------------------------------------
+    # ENCABEZADO CON LOGOS
+    # --------------------------------------------------
+    logo_arg = Image("logo_argentina.png", width=90, height=40)
+    logo_inta = Image("logo_inta.png", width=90, height=40)
+
+    header_table = Table(
+        [[logo_arg, Paragraph(
+            "<b>INFORME DE ANÁLISIS DE SUELO</b><br/>"
+            "Laboratorio de Suelos – EEA Salta INTA",
+            styles["Normal"]
+        ), logo_inta]],
+        colWidths=[100, 300, 100]
+    )
+
+    header_table.setStyle(TableStyle([
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("ALIGN", (0, 0), (0, 0), "LEFT"),
+        ("ALIGN", (2, 0), (2, 0), "RIGHT"),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 12),
+    ]))
+
+    elements.append(header_table)
+    elements.append(Spacer(1, 15))
+
+    elements.append(
+        Paragraph(
+            f"<b>Sitio:</b> {codigo_sitio}",
+            styles["Normal"]
+        )
+    )
+    elements.append(Spacer(1, 12))
+
+    # --------------------------------------------------
+    # FUNCIÓN AUXILIAR PARA TABLAS
+    # --------------------------------------------------
+    def tabla_parametros(titulo, data):
+        elements.append(Spacer(1, 10))
+        elements.append(Paragraph(titulo, styles["Heading3"]))
+        elements.append(Spacer(1, 6))
+
+        table_data = [["Parámetro", "Valor"]] + data
+
+        t = Table(table_data, colWidths=[250, 200])
+        t.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+            ("FONT", (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("ALIGN", (1, 1), (-1, -1), "CENTER"),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+            ("TOPPADDING", (0, 0), (-1, -1), 6),
+        ]))
+
+        elements.append(t)
+
+    # --------------------------------------------------
+    # INFORMACIÓN GENERAL
+    # --------------------------------------------------
+    tabla_parametros(
+        "Información general",
+        [
+            ["Usuario", row["usuario"]],
+            ["Sitio", row["sitio"]],
+            ["Fecha de muestreo", row["fecha_muestreo"]],
+            ["Número de laboratorio", row["numero_laboratorio"]],
+            ["Profundidad", row["profundidad"]],
+            ["Uso actual", row["uso_actual"]],
+        ],
+    )
+
+    # --------------------------------------------------
+    # TEXTURA
+    # --------------------------------------------------
+    tabla_parametros(
+        "Textura del suelo",
+        [
+            ["Arena (%)", row["arena"]],
+            ["Limo (%)", row["limo"]],
+            ["Arcilla (%)", row["arcilla"]],
+            ["Clasificación textural", row["textura"]],
+        ],
+    )
+
+    # --------------------------------------------------
+    # PROPIEDADES QUÍMICAS
+    # --------------------------------------------------
+    tabla_parametros(
+        "Propiedades químicas",
+        [
+            ["pH", row["ph"]],
+            ["Conductividad eléctrica", row["conductividad"]],
+            ["Carbonato Ca + Mg", row["carbonato_ca_mg"]],
+        ],
+    )
+
+    # --------------------------------------------------
+    # FERTILIDAD
+    # --------------------------------------------------
+    tabla_parametros(
+        "Fertilidad y nutrientes",
+        [
+            ["Carbono orgánico", row["carbono_organico"]],
+            ["Materia orgánica", row["materia_organica"]],
+            ["Nitrógeno total", row["nitrogeno_total"]],
+            ["Relación C/N", row["relacion_cn"]],
+            ["Fósforo", row["fosforo"]],
+            ["Potasio", row["potasio"]],
+            ["Calcio", row["calcio"]],
+        ],
+    )
+
+    # --------------------------------------------------
+    # SALES
+    # --------------------------------------------------
+    tabla_parametros(
+        "Sales y otros parámetros",
+        [
+            ["Sodio intercambiable", row["sodio"]],
+            ["Cloruro (extracto)", row["cloruro_extracto"]],
+            ["Cloruro (suelo seco)", row["cloruro_suelo_seco"]],
+            ["EAS", row["eas"]],
+            ["Boro", row["boro"]],
+        ],
+    )
+
+    # --------------------------------------------------
+    # PIE
+    # --------------------------------------------------
+    elements.append(Spacer(1, 20))
+    elements.append(
+        Paragraph(
+            "<i>Los análisis se realizan sobre muestras extraídas por el solicitante.</i>",
+            styles["Normal"]
+        )
+    )
+
+    doc.build(elements)
     buffer.seek(0)
     return buffer
 
@@ -297,9 +444,10 @@ informe = [
     ("EAS", row["eas"]),
     ("Boro", row["boro"]),
 ]
+
 pdf_buffer = generar_pdf_informe(
-    informe,
-    f"Informe de análisis de suelo – {sitio_sel['codigo_sitio']}"
+    row,
+    sitio_sel["codigo_sitio"]
 )
 
 st.download_button(
