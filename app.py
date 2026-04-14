@@ -397,7 +397,7 @@ def generar_pdf_informe(row, codigo_sitio):
     # --------------------------------------------------
     # MISMAS SECCIONES QUE STREAMLIT
     # --------------------------------------------------
-    tabla_pdf("📋 Información general", [
+    tabla_pdf("Información general", [
         ["Usuario", row["usuario"]],
         ["Sitio", row["sitio"]],
         ["Fecha de muestreo", row["fecha_muestreo"]],
@@ -406,20 +406,20 @@ def generar_pdf_informe(row, codigo_sitio):
         ["Uso actual", row["uso_actual"]],
     ])
 
-    tabla_pdf("🧱 Textura del suelo", [
+    tabla_pdf("Textura del suelo", [
         ["Arena (%)", row["arena"]],
         ["Limo (%)", row["limo"]],
         ["Arcilla (%)", row["arcilla"]],
         ["Clasificación textural", row["textura"]],
     ])
 
-    tabla_pdf("🧪 Propiedades químicas", [
+    tabla_pdf("Propiedades químicas", [
         ["pH", row["ph"]],
         ["Conductividad eléctrica", row["conductividad"]],
         ["Carbonato Ca + Mg", row["carbonato_ca_mg"]],
     ])
 
-    tabla_pdf("🌱 Fertilidad y nutrientes", [
+    tabla_pdf("Fertilidad y nutrientes", [
         ["Carbono orgánico", row["carbono_organico"]],
         ["Materia orgánica", row["materia_organica"]],
         ["Nitrógeno total", row["nitrogeno_total"]],
@@ -429,7 +429,7 @@ def generar_pdf_informe(row, codigo_sitio):
         ["Calcio", row["calcio"]],
     ])
     elements.append(PageBreak())
-    tabla_pdf("⚠️ Sales y otros parámetros", [
+    tabla_pdf("Sales y otros parámetros", [
         ["Sodio", row["sodio"]],
         ["Cloruro (extracto)", row["cloruro_extracto"]],
         ["Cloruro (suelo seco)", row["cloruro_suelo_seco"]],
@@ -441,7 +441,7 @@ def generar_pdf_informe(row, codigo_sitio):
     # --------------------------------------------------
     elements.append(Spacer(1, 20))
     elements.append(Paragraph(
-        "<b>⚗️ Técnicas empleadas</b>",
+        "<b>Técnicas empleadas</b>",
         styles["Normal"]
     ))
     elements.append(Spacer(1, 8))
@@ -466,7 +466,7 @@ def generar_pdf_informe(row, codigo_sitio):
     # --------------------------------------------------
     elements.append(Spacer(1, 16))
     elements.append(Paragraph(
-        "<b>ℹ️ Aclaraciones</b>",
+        "<b>Aclaraciones</b>",
         styles["Normal"]
     ))
     elements.append(Spacer(1, 8))
