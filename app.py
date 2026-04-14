@@ -14,7 +14,7 @@ import pandas as pd
 
 from reportlab.platypus import (
     SimpleDocTemplate, Table, TableStyle,
-    Paragraph, Spacer, Image
+    Paragraph, Spacer, Image, PageBreak
 )
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.pagesizes import A4
