@@ -276,7 +276,7 @@ def generar_pdf_informe(row, codigo_sitio):
     # --------------------------------------------------
     # LOGOS (proporcionales, estables)
     # --------------------------------------------------
-    def img(path, target_height=45, min_width=50):
+    def img(path, target_height=40, min_width=45):
         if not os.path.exists(path):
             return Spacer(min_width, target_height)
     
