@@ -290,6 +290,10 @@ def generar_pdf_informe(row, codigo_sitio):
         i.drawHeight = target_height
         i.drawWidth = i.imageWidth * ratio
         return i
+    
+    # ✅ ESTO VA ACÁ DENTRO
+    logo_inta = img(os.path.join(BASE_DIR, "logo_inta.png"))
+    logo_arg = img(os.path.join(BASE_DIR, "logo_argeninta.png"))
 
     header = Table(
         [[
