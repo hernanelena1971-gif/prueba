@@ -113,15 +113,25 @@ if not sitios:
 
 
 # ==================================================
-# SELECTOR SITIO
+# SELECTOR SITIO (SIN PISAR EL MAPA)
 # ==================================================
+if st.session_state.sitio_id is None:
+    st.session_state.sitio_id = sitios[0]["id"]
+
 sitio_sel = st.selectbox(
     "📍 Seleccione un sitio",
     sitios,
-    format_func=lambda s: s["codigo_sitio"]
+    format_func=lambda s: s["codigo_sitio"],
+    index=next(
+        i for i, s in enumerate(sitios)
+        if s["id"] == st.session_state.sitio_id
+    )
 )
 
-st.session_state.sitio_id = sitio_sel["id"]
+# solo actualizar si el selector cambió
+if sitio_sel["id"] != st.session_state.sitio_id:
+    st.session_state.sitio_id = sitio_sel["id"]
+    st.rerun()
 
 
 # ==================================================
@@ -147,7 +157,13 @@ for s in sitios:
         )
     ).add_to(m)
 
-mapa = st_folium(m, width=1200, height=550)
+mapa = st_folium(
+    m,
+    width=1200,
+    height=550,
+    returned_objects=["last_object_clicked"],
+    key="mapa"
+)
 
 # --------------------------------------------------
 # CLICK EN MARCADOR → CAMBIA SITIO ACTIVO
