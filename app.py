@@ -54,7 +54,7 @@ def generar_pdf_informe(row, codigo_sitio):
     # ENCABEZADO CON LOGOS
     # --------------------------------------------------
     logo_arg = Image(
-    os.path.join(BASE_DIR, "logo_argentina.png"),
+    os.path.join(BASE_DIR, "logo_argeninta.png"),
     90,
     40
     )
