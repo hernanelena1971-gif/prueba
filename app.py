@@ -57,11 +57,8 @@ supabase = get_supabase_client()
 # ==================================================
 # SESSION STATE
 # ==================================================
-if "session" not in st.session_state:
-    st.session_state.session = None
-
-if "sitio_id" not in st.session_state:
-    st.session_state.sitio_id = None
+st.session_state.setdefault("session", None)
+st.session_state.setdefault("sitio_id", None)
 
 
 # ==================================================
@@ -128,7 +125,7 @@ st.session_state.sitio_id = sitio_sel["id"]
 
 
 # ==================================================
-# MAPA (ZOOM CORRECTO)
+# MAPA
 # ==================================================
 lats = [s["latitud"] for s in sitios if s["latitud"] is not None]
 lons = [s["longitud"] for s in sitios if s["longitud"] is not None]
@@ -136,10 +133,7 @@ lons = [s["longitud"] for s in sitios if s["longitud"] is not None]
 m = folium.Map(tiles="OpenStreetMap")
 
 if lats and lons:
-    m.fit_bounds([
-        [min(lats), min(lons)],
-        [max(lats), max(lons)]
-    ])
+    m.fit_bounds([[min(lats), min(lons)], [max(lats), max(lons)]])
 
 for s in sitios:
     folium.Marker(
@@ -214,7 +208,19 @@ mostrar_tabla("🌱 Fertilidad y nutrientes", [
     ["Calcio", row["calcio"]],
 ])
 
-mostrar_tabla("⚠️ Sales y otros parámetros", [def generar_pdf_informe(row, codigo_sitio):
+mostrar_tabla("⚠️ Sales y otros parámetros", [
+    ["Sodio", row["sodio"]],
+    ["Cloruro (extracto)", row["cloruro_extracto"]],
+    ["Cloruro (suelo seco)", row["cloruro_suelo_seco"]],
+    ["EAS", row["eas"]],
+    ["Boro", row["boro"]],
+])
+
+
+# ==================================================
+# PDF
+# ==================================================
+def generar_pdf_informe(row, codigo_sitio):
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     buffer = BytesIO()
 
@@ -230,13 +236,9 @@ mostrar_tabla("⚠️ Sales y otros parámetros", [def generar_pdf_informe(row, 
     styles = getSampleStyleSheet()
     elements = []
 
-    # --------------------------------------------------
-    # LOGOS
-    # --------------------------------------------------
-    def img(path, target_width=110, min_height=45):
+    def img(path, target_width=110):
         if not os.path.exists(path):
-            return Spacer(target_width, min_height)
-
+            return Spacer(target_width, 50)
         i = Image(path)
         ratio = target_width / i.imageWidth
         i.drawWidth = target_width
@@ -261,88 +263,8 @@ mostrar_tabla("⚠️ Sales y otros parámetros", [def generar_pdf_informe(row, 
     elements.append(header)
     elements.append(Spacer(1, 18))
 
-    # --------------------------------------------------
-    # TÍTULO
-    # --------------------------------------------------
     elements.append(Paragraph(
         f"<b>Informe de análisis de suelo</b><br/>Sitio: {codigo_sitio}",
-        styles["Normal"]
-    ))
-    elements.append(Spacer(1, 14))
-
-    # --------------------------------------------------
-    # FUNCIÓN TABLAS
-    # --------------------------------------------------
-    def tabla(titulo, filas):
-        elements.append(Paragraph(f"<b>{titulo}</b>", styles["Normal"]))
-        elements.append(Spacer(1, 6))
-
-        t = Table(
-            [["Parámetro", "Valor"]] + filas,
-            colWidths=[260, 190]
-        )
-        t.setStyle(TableStyle([
-            ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
-            ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
-            ("ALIGN", (1, 1), (-1, -1), "CENTER"),
-            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ]))
-
-        elements.append(t)
-        elements.append(Spacer(1, 12))
-
-    # --------------------------------------------------
-    # TODAS LAS SECCIONES
-    # --------------------------------------------------
-    tabla("Información general", [
-        ["Usuario", row["usuario"]],
-        ["Sitio", row["sitio"]],
-        ["Fecha de muestreo", row["fecha_muestreo"]],
-        ["Número de laboratorio", row["numero_laboratorio"]],
-        ["Profundidad", row["profundidad"]],
-        ["Uso actual", row["uso_actual"]],
-        ["Uso anterior", row.get("uso_anterior", "")],
-        ["Uso posterior", row.get("uso_posterior", "")],
-        ["Observaciones", row.get("observaciones", "")],
-    ])
-
-    tabla("Textura del suelo", [
-        ["Arena (%)", row["arena"]],
-        ["Limo (%)", row["limo"]],
-        ["Arcilla (%)", row["arcilla"]],
-        ["Clasificación textural", row["textura"]],
-    ])
-
-    tabla("Propiedades químicas", [
-        ["pH", row["ph"]],
-        ["Conductividad eléctrica", row["conductividad"]],
-        ["Carbonato Ca + Mg", row["carbonato_ca_mg"]],
-    ])
-
-    tabla("Fertilidad y nutrientes", [
-        ["Carbono orgánico", row["carbono_organico"]],
-        ["Materia orgánica", row["materia_organica"]],
-        ["Nitrógeno total", row["nitrogeno_total"]],
-        ["Relación C/N", row["relacion_cn"]],
-        ["Fósforo", row["fosforo"]],
-        ["Potasio", row["potasio"]],
-        ["Calcio", row["calcio"]],
-    ])
-
-    tabla("Sales y otros parámetros", [
-        ["Sodio", row["sodio"]],
-        ["Cloruro (extracto)", row["cloruro_extracto"]],
-        ["Cloruro (suelo seco)", row["cloruro_suelo_seco"]],
-        ["EAS", row["eas"]],
-        ["Boro", row["boro"]],
-    ])
-
-    # --------------------------------------------------
-    # PIE
-    # --------------------------------------------------
-    elements.append(Spacer(1, 18))
-    elements.append(Paragraph(
-        "<i>Los análisis se realizan sobre muestras extraídas por el solicitante.</i>",
         styles["Normal"]
     ))
 
@@ -350,18 +272,9 @@ mostrar_tabla("⚠️ Sales y otros parámetros", [def generar_pdf_informe(row, 
     buffer.seek(0)
     return buffer
 
-    ["Sodio", row["sodio"]],
-    ["Cloruro (extracto)", row["cloruro_extracto"]],
-    ["Cloruro (suelo seco)", row["cloruro_suelo_seco"]],
-    ["EAS", row["eas"]],
-    ["Boro", row["boro"]],
-])
-
-
-
 
 # ==================================================
-# BOTÓN DESCARGA PDF
+# BOTÓN PDF
 # ==================================================
 pdf_buffer = generar_pdf_informe(row, sitio_sel["codigo_sitio"])
 
