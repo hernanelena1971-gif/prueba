@@ -236,9 +236,12 @@ def generar_pdf_informe(row, codigo_sitio):
     styles = getSampleStyleSheet()
     elements = []
 
+    # --------------------------------------------------
+    # LOGOS (proporcionales, estables)
+    # --------------------------------------------------
     def img(path, target_width=110):
         if not os.path.exists(path):
-            return Spacer(target_width, 50)
+            return Spacer(target_width, 55)
         i = Image(path)
         ratio = target_width / i.imageWidth
         i.drawWidth = target_width
@@ -263,8 +266,86 @@ def generar_pdf_informe(row, codigo_sitio):
     elements.append(header)
     elements.append(Spacer(1, 18))
 
+    # --------------------------------------------------
+    # TÍTULO
+    # --------------------------------------------------
     elements.append(Paragraph(
         f"<b>Informe de análisis de suelo</b><br/>Sitio: {codigo_sitio}",
+        styles["Normal"]
+    ))
+    elements.append(Spacer(1, 12))
+
+    # --------------------------------------------------
+    # FUNCIÓN PARA TABLAS (PDF)
+    # --------------------------------------------------
+    def tabla_pdf(titulo, filas):
+        elements.append(Paragraph(f"<b>{titulo}</b>", styles["Normal"]))
+        elements.append(Spacer(1, 6))
+
+        t = Table(
+            [["Parámetro", "Valor"]] + filas,
+            colWidths=[260, 190]
+        )
+
+        t.setStyle(TableStyle([
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+            ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("ALIGN", (1, 1), (-1, -1), "CENTER"),
+        ]))
+
+        elements.append(t)
+        elements.append(Spacer(1, 12))
+
+    # --------------------------------------------------
+    # MISMAS SECCIONES QUE STREAMLIT
+    # --------------------------------------------------
+    tabla_pdf("Información general", [
+        ["Usuario", row["usuario"]],
+        ["Sitio", row["sitio"]],
+        ["Fecha de muestreo", row["fecha_muestreo"]],
+        ["Número de laboratorio", row["numero_laboratorio"]],
+        ["Profundidad", row["profundidad"]],
+        ["Uso actual", row["uso_actual"]],
+    ])
+
+    tabla_pdf("Textura del suelo", [
+        ["Arena (%)", row["arena"]],
+        ["Limo (%)", row["limo"]],
+        ["Arcilla (%)", row["arcilla"]],
+        ["Clasificación textural", row["textura"]],
+    ])
+
+    tabla_pdf("Propiedades químicas", [
+        ["pH", row["ph"]],
+        ["Conductividad eléctrica", row["conductividad"]],
+        ["Carbonato Ca + Mg", row["carbonato_ca_mg"]],
+    ])
+
+    tabla_pdf("Fertilidad y nutrientes", [
+        ["Carbono orgánico", row["carbono_organico"]],
+        ["Materia orgánica", row["materia_organica"]],
+        ["Nitrógeno total", row["nitrogeno_total"]],
+        ["Relación C/N", row["relacion_cn"]],
+        ["Fósforo", row["fosforo"]],
+        ["Potasio", row["potasio"]],
+        ["Calcio", row["calcio"]],
+    ])
+
+    tabla_pdf("Sales y otros parámetros", [
+        ["Sodio", row["sodio"]],
+        ["Cloruro (extracto)", row["cloruro_extracto"]],
+        ["Cloruro (suelo seco)", row["cloruro_suelo_seco"]],
+        ["EAS", row["eas"]],
+        ["Boro", row["boro"]],
+    ])
+
+    # --------------------------------------------------
+    # PIE
+    # --------------------------------------------------
+    elements.append(Spacer(1, 16))
+    elements.append(Paragraph(
+        "<i>Los análisis se realizan sobre muestras extraídas por el solicitante.</i>",
         styles["Normal"]
     ))
 
