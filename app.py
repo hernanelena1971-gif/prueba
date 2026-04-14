@@ -125,7 +125,7 @@ st.session_state.sitio_id = sitio_sel["id"]
 
 
 # ==================================================
-# MAPA
+# MAPA — zoom a todos los sitios + click selecciona
 # ==================================================
 lats = [s["latitud"] for s in sitios if s["latitud"] is not None]
 lons = [s["longitud"] for s in sitios if s["longitud"] is not None]
@@ -133,7 +133,10 @@ lons = [s["longitud"] for s in sitios if s["longitud"] is not None]
 m = folium.Map(tiles="OpenStreetMap")
 
 if lats and lons:
-    m.fit_bounds([[min(lats), min(lons)], [max(lats), max(lons)]])
+    m.fit_bounds([
+        [min(lats), min(lons)],
+        [max(lats), max(lons)]
+    ])
 
 for s in sitios:
     folium.Marker(
@@ -144,7 +147,25 @@ for s in sitios:
         )
     ).add_to(m)
 
-st_folium(m, width=1200, height=550)
+mapa = st_folium(m, width=1200, height=550)
+
+# --------------------------------------------------
+# CLICK EN MARCADOR → CAMBIA SITIO ACTIVO
+# --------------------------------------------------
+if mapa and mapa.get("last_object_clicked"):
+    lat = mapa["last_object_clicked"]["lat"]
+    lng = mapa["last_object_clicked"]["lng"]
+
+    for s in sitios:
+        if (
+            s["latitud"] is not None and
+            s["longitud"] is not None and
+            abs(s["latitud"] - lat) < 0.0001 and
+            abs(s["longitud"] - lng) < 0.0001
+        ):
+            if st.session_state.sitio_id != s["id"]:
+                st.session_state.sitio_id = s["id"]
+                st.rerun()
 
 
 # ==================================================
