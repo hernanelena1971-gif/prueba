@@ -14,20 +14,23 @@ import pandas as pd
 
 from reportlab.platypus import (
     SimpleDocTemplate, Table, TableStyle,
-    Paragraph, Spacer, Image, PageBreak
+    Paragraph, Spacer, Image as RLImage, PageBreak
 )
+
+from PIL import Image as PILImage
+
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
  
 from folium.plugins import LocateControl, Fullscreen
-from PIL import Image
+ 
 
 def logo_con_alto(path, alto_px):
-    img = Image.open(path)
+    img = PILImage.open(path)
     w, h = img.size
     nuevo_ancho = int((alto_px / h) * w)
-    return img.resize((nuevo_ancho, alto_px), Image.LANCZOS)
+    return img.resize((nuevo_ancho, alto_px), PILImage.LANCZOS)
 
 
 
@@ -512,7 +515,7 @@ def generar_pdf_informe(row, codigo_sitio):
         if not os.path.exists(path):
             return Spacer(min_width, target_height)
     
-        i = Image(path)
+        i = RLImage(path)
         ratio = target_height / i.imageHeight
         i.drawHeight = target_height
         i.drawWidth = i.imageWidth * ratio
