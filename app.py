@@ -184,7 +184,8 @@ if st.session_state.session is None:
             margin: 1.5rem 0;
             border-top: 1px solid #cfcfcf;
           }
-        </style>        
+        </style> 
+        <div class="inicio-container">
       
             <div class="inicio-text">
                 Plataforma destinada a la consulta, visualización e interpretación de análisis de suelos,
