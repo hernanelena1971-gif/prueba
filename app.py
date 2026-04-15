@@ -500,7 +500,7 @@ mostrar_tabla("🌱 Fertilidad y nutrientes", [
 ])
 
 mostrar_tabla("💧 Propiedades físicas e hídricas", [
-    ["Capacidad hídrica de saturación", row["capacidad_hidrica_saturacion"]],
+    ["Capacidad hídrica de saturación (%)", row["capacidad_hidrica_saturacion"]],
 ])
 
 
@@ -684,9 +684,21 @@ def generar_pdf_informe(row, codigo_sitio):
         ["Relación C/N", row["relacion_cn"]],
         ["Fósforo extractable (p.p.m.)", row["fosforo"]],
         ["Potasio intercambiable (meq/100 g)", row["potasio"]],
-        ["Calcio intercambiable (meq/100 g)", row["calcio"]],
+        
     ])
     elements.append(PageBreak())
+     tabla_pdf("Fertilidad y nutrientes", [
+       
+        ["Calcio intercambiable (meq/100 g)", row["calcio"]],
+        ["Magnesio Intercambiable (meq/100 g)", row["magnesio"]],       
+    ])
+
+     tabla_pdf("Propiedades físicas e hídricas", [
+       
+        ["Capacidad hídrica de saturación (%)", row["capacidad_hidrica_saturacio"]],
+           
+    ])
+    
     tabla_pdf("Sales y otros parámetros", [
         ["Sodio intercambiable (meq/100 g)", row["sodio"]],
         ["Cloruro soluble en el extracto de saturación (meq/l)", row["cloruro_extracto"]],
