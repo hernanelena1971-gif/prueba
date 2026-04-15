@@ -45,29 +45,25 @@ st.markdown(
         margin-bottom: 2rem;
         border-left: 6px solid #2e7d32;
     }
-
     .inicio-title {
         font-size: 2.1rem;
         font-weight: 700;
         color: #1b5e20;
         margin-bottom: 0.6rem;
     }
-
     .inicio-subtitle {
         font-size: 1.1rem;
         font-weight: 600;
         color: #2e7d32;
         margin-bottom: 0.3rem;
     }
-
     .inicio-text {
         font-size: 0.95rem;
         color: #333333;
         margin-top: 1rem;
-        max-width: 900px;
         line-height: 1.6;
+        max-width: 900px;
     }
-
     .inicio-separador {
         margin: 1.5rem 0;
         border-top: 1px solid #cfcfcf;
