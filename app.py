@@ -82,8 +82,17 @@ if st.session_state.session is None:
 
     
      
-    # 🔹 HEADER INSTITUCIONAL – alto unificado estilo PDF
-    col_left, col_center, col_right = st.columns([2, 6, 2])
+    
+    # 🔹 HEADER INSTITUCIONAL – solo INTA (sutil, estilo PDF)
+    from PIL import Image
+    
+    def logo_con_alto(path, alto_px):
+        img = Image.open(path)
+        w, h = img.size
+        nuevo_ancho = int((alto_px / h) * w)
+        return img.resize((nuevo_ancho, alto_px), Image.LANCZOS)
+    
+    col_left, col_center = st.columns([1, 9])
     
     with col_left:
         st.image(
@@ -91,13 +100,8 @@ if st.session_state.session is None:
             caption=None
         )
     
-    with col_right:
-        st.image(
-            logo_con_alto("logo_argeninta.png", alto_px=80),
-            caption=None
-        )
-    
     st.divider()
+    
         
     
 
