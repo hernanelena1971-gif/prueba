@@ -174,9 +174,9 @@ if st.session_state.session is None:
             margin-bottom: 0.3rem;
           }
           .inicio-text {
-            font-size: 0.95rem;
+            font-size: 1.1rem;
             color: #333;
-            margin-top: 1rem;
+            margin-top: 0.5rem;
             line-height: 1.6;
             width: 100%;
           }
