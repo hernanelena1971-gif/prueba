@@ -502,8 +502,8 @@ mostrar_tabla("⚠️ Sales y otros parámetros", [
     ["Sodio intercambiable (meq/100 g)", row["sodio"]],
     ["Cloruro soluble en el extracto de saturación (meq/l)", row["cloruro_extracto"]],
     ["Cloruro soluble en el extracto de saturación, referido a suelo seco (p.p.m.)", row["cloruro_suelo_seco"]],
-    ["EAS", row["eas"]],
-    ["Boro", row["boro"]],
+    ["Estabilidad de Agregados de Suelo (%)", row["eas"]],
+    ["Boro (p.p.m)", row["boro"]],
 ])
 
 
@@ -684,9 +684,9 @@ def generar_pdf_informe(row, codigo_sitio):
     tabla_pdf("Sales y otros parámetros", [
         ["Sodio intercambiable (meq/100 g)", row["sodio"]],
         ["Cloruro soluble en el extracto de saturación (meq/l)", row["cloruro_extracto"]],
-        ["Cloruro soluble en el extracto de saturación, referido a suelo seco (p.p.m.)", row["cloruro_suelo_seco"]],
-        ["EAS", row["eas"]],
-        ["Boro", row["boro"]],
+        ["Cloruro soluble en el extracto de saturación - suelo seco (p.p.m.)", row["cloruro_suelo_seco"]],
+        ["Estabilidad de Agregados de Suelo (%)", row["eas"]],
+        ["Boro (p.p.m)", row["boro"]],
     ])
 # --------------------------------------------------
     # TÉCNICAS EMPLEADAS
