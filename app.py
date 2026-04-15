@@ -21,6 +21,13 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
  
 from folium.plugins import LocateControl, Fullscreen
+from PIL import Image
+
+def logo_con_alto(path, alto_px):
+    img = Image.open(path)
+    w, h = img.size
+    nuevo_ancho = int((alto_px / h) * w)
+    return img.resize((nuevo_ancho, alto_px), Image.LANCZOS)
 
 
 
@@ -74,14 +81,21 @@ st.session_state.setdefault("sitio_id", None)
 if st.session_state.session is None:
 
     
-    # 🔹 HEADER INSTITUCIONAL – alineado a bordes, estilo PDF
+     
+    # 🔹 HEADER INSTITUCIONAL – alto unificado estilo PDF
     col_left, col_center, col_right = st.columns([2, 6, 2])
     
     with col_left:
-        st.image("logo_inta.png", width=110)
+        st.image(
+            logo_con_alto("logo_inta.png", alto_px=60),
+            caption=None
+        )
     
     with col_right:
-        st.image("logo_argeninta.png", width=150)
+        st.image(
+            logo_con_alto("logo_argeninta.png", alto_px=60),
+            caption=None
+        )
     
     st.divider()
         
