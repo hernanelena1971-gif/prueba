@@ -87,10 +87,10 @@ if st.session_state.session is None:
     # 🔹 HEADER INSTITUCIONAL – solo INTA (sutil, estilo PDF)
     from PIL import Image
     def logo_con_alto(path, alto_px):
-        img = Image.open(path)
+        img = PILImage.open(path)
         w, h = img.size
         nuevo_ancho = int((alto_px / h) * w)
-        return img.resize((nuevo_ancho, alto_px), Image.LANCZOS)
+        return img.resize((nuevo_ancho, alto_px), PILImage.LANCZOS)
     
     st.html(
         """
