@@ -87,13 +87,13 @@ if st.session_state.session is None:
     
     with col_left:
         st.image(
-            logo_con_alto("logo_inta.png", alto_px=90),
+            logo_con_alto("logo_inta.png", alto_px=80),
             caption=None
         )
     
     with col_right:
         st.image(
-            logo_con_alto("logo_argeninta.png", alto_px=60),
+            logo_con_alto("logo_argeninta.png", alto_px=80),
             caption=None
         )
     
