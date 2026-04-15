@@ -75,18 +75,17 @@ if st.session_state.session is None:
 
     # 🔹 LOGOS INSTITUCIONALES (forma CORRECTA en Streamlit)
     
-    col1, col2, col3 = st.columns([4, 1, 4])
     
-    with col2:
-        st.image("logo_inta.png", width=90)
+    col_left, col_right = st.columns([1, 1])
     
-    # alineamos el segundo logo a la derecha
-    col4, col5, col6 = st.columns([4, 1, 4])
+    with col_left:
+        st.image("logo_inta.png", width=95)
     
-    with col6:
-        st.image("logo_argeninta.png", width=110)
+    with col_right:
+        st.image("logo_argeninta.png", width=115)
     
     st.divider()
+
 
 
     # 🔹 PRESENTACIÓN INSTITUCIONAL
