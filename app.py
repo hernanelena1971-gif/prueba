@@ -32,75 +32,8 @@ st.set_page_config(
     layout="wide"
 )
 
-# ==================================================
-# CSS institucional
-# ==================================================
-st.html(
-    """
-    <style>
-      .inicio-container {
-        background-color: #f5f7f6;
-        padding: 2.5rem 2rem;
-        border-radius: 10px;
-        margin-bottom: 2rem;
-        border-left: 6px solid #2e7d32;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
-      }
 
-      .inicio-title {
-        font-size: 2.1rem;
-        font-weight: 700;
-        color: #1b5e20;
-        margin-bottom: 0.6rem;
-      }
 
-      .inicio-subtitle {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #2e7d32;
-        margin-bottom: 0.3rem;
-      }
-
-      .inicio-text {
-        font-size: 0.95rem;
-        color: #333333;
-        margin-top: 1rem;
-        max-width: 900px;
-        line-height: 1.6;
-      }
-
-      .inicio-separador {
-        margin: 1.5rem 0;
-        border-top: 1px solid #cfcfcf;
-      }
-    </style>
-
-    <div class="inicio-container">
-        <div class="inicio-title">
-            Sistema de Consulta de Análisis de Suelos
-        </div>
-
-        <div class="inicio-subtitle">
-            Laboratorio de Suelos, Agua y Fertilizantes – LabSAF
-        </div>
-        <div class="inicio-subtitle">
-            Grupo Recursos Naturales
-        </div>
-        <div class="inicio-subtitle">
-            INTA – EEA Salta
-        </div>
-
-        <div class="inicio-separador"></div>
-
-        <div class="inicio-text">
-            Plataforma destinada a la consulta, visualización e interpretación de análisis de suelos,
-            agua y fertilizantes realizados por el Laboratorio de Suelos, Agua y Fertilizantes (LabSAF),
-            permitiendo el acceso a resultados analíticos, información geográfica de sitios de muestreo
-            y documentación técnica asociada.
-        </div>
-    </div>
-    """
-)
 
 
 
@@ -135,15 +68,74 @@ st.session_state.setdefault("session", None)
 st.session_state.setdefault("sitio_id", None)
 
 
-
-
-
 # ==================================================
-# LOGIN
+# CSS institucional y login
 # ==================================================
 if st.session_state.session is None:
-    st.title("🔐 Acceso al sistema")
 
+    # 🔹 HEADER + PRESENTACIÓN INSTITUCIONAL
+    st.html(
+        """
+        <style>
+          .inicio-container {
+            background-color: #f5f7f6;
+            padding: 2.5rem 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            border-left: 6px solid #2e7d32;
+          }
+          .inicio-title {
+            font-size: 2.1rem;
+            font-weight: 700;
+            color: #1b5e20;
+            margin-bottom: 0.6rem;
+          }
+          .inicio-subtitle {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2e7d32;
+          }
+          .inicio-text {
+            font-size: 0.95rem;
+            color: #333;
+            margin-top: 1rem;
+            line-height: 1.6;
+          }
+          .inicio-separador {
+            margin: 1.5rem 0;
+            border-top: 1px solid #cfcfcf;
+          }
+        </style>
+
+        <div class="inicio-container">
+            <div class="inicio-title">
+              Sistema de Consulta de Análisis de Suelos
+            </div>
+
+            <div class="inicio-subtitle">
+              Laboratorio de Suelos, Agua y Fertilizantes – LabSAF
+            </div>
+            <div class="inicio-subtitle">
+              Grupo Recursos Naturales
+            </div>
+            <div class="inicio-subtitle">
+              INTA – EEA Salta
+            </div>
+
+            <div class="inicio-separador"></div>
+
+            <div class="inicio-text">
+              Plataforma destinada a la consulta, visualización e interpretación de análisis de suelos,
+              agua y fertilizantes realizados por el Laboratorio de Suelos, Agua y Fertilizantes (LabSAF),
+              permitiendo el acceso a resultados analíticos, información geográfica de sitios de muestreo
+              y documentación técnica asociada.
+            </div>
+        </div>
+        """
+    )
+
+    # 🔐 LOGIN
+    st.subheader("🔐 Acceso al sistema")
     email = st.text_input("Email")
     password = st.text_input("Contraseña", type="password")
 
@@ -153,13 +145,13 @@ if st.session_state.session is None:
                 {"email": email, "password": password}
             )
             st.session_state.session = res.session
-            st.success("Ingreso correcto")
             st.rerun()
         except Exception as e:
             st.error("Error de login")
-            st.code(str(e))
 
     st.stop()
+
+
 
 
 # ==================================================
