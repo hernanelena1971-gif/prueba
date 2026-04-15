@@ -19,7 +19,9 @@ from reportlab.platypus import (
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
-from folium.plugins import LocateControl
+ 
+from folium.plugins import LocateControl, Fullscreen
+
 
 
 # ==================================================
@@ -134,6 +136,42 @@ if sitio_sel["id"] != st.session_state.sitio_id:
     st.session_state.sitio_id = sitio_sel["id"]
     st.rerun()
 
+# ==================================================
+# MAPA — configuracion
+# ==================================================
+st.markdown(
+    """
+    <style>
+    /* Contenedor principal de Leaflet */
+    .leaflet-container {
+        height: 70vh !important;     /* ⬅️ ajustá: 60–80vh */
+        width: 100% !important;
+        min-height: 500px;           /* seguridad pantallas chicas */
+        max-height: 850px;
+        border-radius: 8px;
+    }
+
+    /* Mantener controles dentro del área */
+    .leaflet-control {
+        margin: 10px !important;
+    }
+
+    /* Selector de capas desplazable */
+    .leaflet-control-layers {
+        max-height: 80%;
+        overflow-y: auto;
+    }
+
+    /* Atribución siempre visible */
+    .leaflet-control-attribution {
+        white-space: normal !important;
+        font-size: 11px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 
 # ==================================================
 # MAPA — zoom a todos los sitios + click selecciona
@@ -195,11 +233,19 @@ for s in sitios:
 # Selector de capas
 folium.LayerControl(collapsed=False).add_to(m)
 
+# Pantalla completa
+Fullscreen(
+    position="topleft",
+    title="Pantalla completa",
+    title_cancel="Salir de pantalla completa",
+    force_separate_button=True
+).add_to(m)
+
 # ✅ RENDER DEL MAPA EN STREAMLIT (ESTO FALTABA)
 mapa = st_folium(
     m,
-    width=1200,
-    height=550,
+    width=None,      # ⬅️ deja al CSS manejarlo
+    height=700,      # fallback
     returned_objects=["last_object_clicked"],
     key="mapa"
 )
