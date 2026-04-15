@@ -143,9 +143,6 @@ if st.session_state.session is None:
         )
     
     st.divider()
-
-    
-        
     
 
 
@@ -161,32 +158,51 @@ if st.session_state.session is None:
             margin-bottom: 1.2rem;
             border-left: 6px solid #2e7d32;
           }
-          .inicio-title {
-            font-size: 2.1rem;
-            font-weight: 700;
-            color: #1b5e20;
-            margin-bottom: 0.6rem;
+    
+          .inicio-text {
+            font-size: 1.05rem;
+            color: #333;
+            line-height: 1.6;
           }
-          .inicio-subtitle {
-            font-size: 1.1rem;
+    
+          /* Botón toggle */
+          .toggle-label {
+            display: none;
+            font-size: 0.9rem;
             font-weight: 600;
             color: #2e7d32;
-            margin-bottom: 0.3rem;
+            cursor: pointer;
+            margin-top: 0.6rem;
           }
-          .inicio-text {
-            font-size: 1.1rem;
-            color: #333;
-            margin-top: 1rem;
-            line-height: 1.6;
-            width: 100%;
+    
+          /* Checkbox oculto */
+          #toggle-desc {
+            display: none;
           }
-          .inicio-separador {
-            margin: 1.5rem 0;
-            border-top: 1px solid #cfcfcf;
+    
+          /* Comportamiento móvil */
+          @media (max-width: 768px) {
+            .inicio-text {
+              display: none;
+            }
+    
+            #toggle-desc:checked + .inicio-text {
+              display: block;
+              margin-top: 0.8rem;
+            }
+    
+            .toggle-label {
+              display: inline-block;
+            }
           }
-        </style> 
+        </style>
+    
         <div class="inicio-container">
-      
+            <label for="toggle-desc" class="toggle-label">
+                📄 Ver descripción
+            </label>
+            <input type="checkbox" id="toggle-desc">
+    
             <div class="inicio-text">
                 Plataforma destinada a la consulta, visualización e interpretación de análisis de suelos,
                 agua y fertilizantes realizados por el Laboratorio de Suelos, Agua y Fertilizantes (LabSAF),
