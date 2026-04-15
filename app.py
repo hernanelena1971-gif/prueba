@@ -687,13 +687,12 @@ def generar_pdf_informe(row, codigo_sitio):
         
     ])
     elements.append(PageBreak())
-     tabla_pdf("Fertilidad y nutrientes", [
-       
+    tabla_pdf("Fertilidad y nutrientes", [       
         ["Calcio intercambiable (meq/100 g)", row["calcio"]],
         ["Magnesio Intercambiable (meq/100 g)", row["magnesio"]],       
     ])
 
-     tabla_pdf("Propiedades físicas e hídricas", [
+    tabla_pdf("Propiedades físicas e hídricas", [
        
         ["Capacidad hídrica de saturación (%)", row["capacidad_hidrica_saturacio"]],
            
