@@ -694,7 +694,7 @@ def generar_pdf_informe(row, codigo_sitio):
 
     tabla_pdf("Propiedades físicas e hídricas", [
        
-        ["Capacidad hídrica de saturación (%)", row["capacidad_hidrica_saturacio"]],
+        ["Capacidad hídrica de saturación (%)", row["capacidad_hidrica_saturacion"]],
            
     ])
     
