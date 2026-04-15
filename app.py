@@ -499,6 +499,11 @@ mostrar_tabla("🌱 Fertilidad y nutrientes", [
     ["Magnesio Intercambiable (meq/100 g)", row["magnesio"]],
 ])
 
+mostrar_tabla("💧 Propiedades físicas e hídricas", [
+    ["Capacidad hídrica de saturación", row["capacidad_hidrica_saturacion"]],
+])
+
+
 mostrar_tabla("⚠️ Sales y otros parámetros", [
     ["Sodio intercambiable (meq/100 g)", row["sodio"]],
     ["Cloruro soluble en el extracto de saturación (meq/l)", row["cloruro_extracto"]],
