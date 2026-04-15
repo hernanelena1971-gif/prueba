@@ -184,25 +184,8 @@ if st.session_state.session is None:
             margin: 1.5rem 0;
             border-top: 1px solid #cfcfcf;
           }
-        </style>
-
-        <div class="inicio-container">
-            <div class="inicio-title">
-                Sistema de Consulta de Análisis de Suelos
-            </div>
-
-            <div class="inicio-subtitle">
-                Laboratorio de Suelos, Agua y Fertilizantes – LabSAF
-            </div>
-            <div class="inicio-subtitle">
-                Grupo Recursos Naturales
-            </div>
-            <div class="inicio-subtitle">
-                INTA – EEA Salta
-            </div>
-
-            <div class="inicio-separador"></div>
-
+        </style>        
+      
             <div class="inicio-text">
                 Plataforma destinada a la consulta, visualización e interpretación de análisis de suelos,
                 agua y fertilizantes realizados por el Laboratorio de Suelos, Agua y Fertilizantes (LabSAF),
