@@ -127,7 +127,7 @@ if st.session_state.session is None:
     col_logo, col_text = st.columns([1, 9])
     
     with col_logo:
-        st.image(logo_con_alto("logo_inta.png", alto_px=70))
+        st.image(logo_con_alto("logointa.png", alto_px=70))
     
     with col_text:
         st.markdown(
