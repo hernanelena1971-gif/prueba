@@ -80,27 +80,70 @@ st.session_state.setdefault("sitio_id", None)
 # ==================================================
 if st.session_state.session is None:
 
-    
-     
-    
+        
     # 🔹 HEADER INSTITUCIONAL – solo INTA (sutil, estilo PDF)
     from PIL import Image
-    
     def logo_con_alto(path, alto_px):
         img = Image.open(path)
         w, h = img.size
         nuevo_ancho = int((alto_px / h) * w)
         return img.resize((nuevo_ancho, alto_px), Image.LANCZOS)
     
-    col_left, col_center = st.columns([1, 9])
+    st.html(
+        """
+        <style>
+          .header-app {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            background-color: #f5f7f6;
+            padding: 1.2rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.2rem;
+          }
     
-    with col_left:
-        st.image(
-            logo_con_alto("logointa.png", alto_px=80),
-            caption=None
+          .header-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1b5e20;
+            line-height: 1.2;
+          }
+    
+          .header-subtitle {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #2e7d32;
+            margin-top: 0.2rem;
+          }
+    
+          .header-divider {
+            border-top: 1px solid #d0d0d0;
+            margin-bottom: 1.2rem;
+          }
+        </style>
+        """,
+    )
+    
+    col_logo, col_text = st.columns([1, 9])
+    
+    with col_logo:
+        st.image(logo_con_alto("logo_inta.png", alto_px=70))
+    
+    with col_text:
+        st.markdown(
+            """
+            <div class="header-title">
+                Sistema de Consulta de Análisis de Suelos
+            </div>
+            <div class="header-subtitle">
+                Laboratorio de Suelos, Agua y Fertilizantes – LabSAF · INTA EEA Salta
+            </div>
+            """,
+            unsafe_allow_html=True
         )
     
     st.divider()
+
     
         
     
