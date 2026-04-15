@@ -2,7 +2,7 @@
 # IMPORTS
 # ==================================================
 import os
-from io import BytesIO
+from io import BytesIO 
 
 import streamlit as st
 from supabase import create_client, ClientOptions
@@ -96,7 +96,7 @@ if st.session_state.session is None:
     
     with col_left:
         st.image(
-            logo_con_alto("logo_inta.png", alto_px=80),
+            logo_con_alto("inta.png", alto_px=80),
             caption=None
         )
     
