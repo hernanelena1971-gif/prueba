@@ -94,8 +94,8 @@ if st.session_state.session is None:
         </style>
     
         <div class="header-logos">
-          <img src="app/static/logo_inta.png" alt="INTA">
-          <img src="app/static/logo_argeninta.png" alt="Argentina / INTA">
+          <img src="logo_inta.png" alt="INTA">
+          <img src="logo_argeninta.png" alt="Argentina / INTA">
         </div>
     
         <div class="header-divider"></div>
