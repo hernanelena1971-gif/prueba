@@ -471,7 +471,7 @@ mostrar_tabla("📋 Información general", [
     ["Sitio", row["sitio"]],
     ["Fecha de muestreo", row["fecha_muestreo"]],
     ["Número de laboratorio", row["numero_laboratorio"]],
-    ["Profundidad", row["profundidad"]],
+    ["Profundidad de muestreo (cm)", row["profundidad"]],
     ["Uso actual", row["uso_actual"]],
 ])
 
@@ -483,25 +483,25 @@ mostrar_tabla("🧱 Textura del suelo", [
 ])
 
 mostrar_tabla("🧪 Propiedades químicas", [
-    ["pH", row["ph"]],
-    ["Conductividad eléctrica", row["conductividad"]],
-    ["Carbonato Ca + Mg", row["carbonato_ca_mg"]],
+    ["pH en suspensión de suelo-agua 1:2.5", row["ph"]],
+    ["Conductividad eléctrica - Salinidad (mmhos/cm)", row["conductividad"]],
+    ["Carbonato de Calcio y Magnesio (%)", row["carbonato_ca_mg"]],
 ])
 
 mostrar_tabla("🌱 Fertilidad y nutrientes", [
-    ["Carbono orgánico", row["carbono_organico"]],
-    ["Materia orgánica", row["materia_organica"]],
-    ["Nitrógeno total", row["nitrogeno_total"]],
+    ["Carbono orgánico (%)", row["carbono_organico"]],
+    ["Materia orgánica (%)", row["materia_organica"]],
+    ["Nitrógeno total (%)", row["nitrogeno_total"]],
     ["Relación C/N", row["relacion_cn"]],
-    ["Fósforo", row["fosforo"]],
-    ["Potasio", row["potasio"]],
-    ["Calcio", row["calcio"]],
+    ["Fósforo "Extractable (p.p.m.) ", row["fosforo"]],
+    ["Potasio intercambiable (meq/100 g)", row["potasio"]],
+    ["Calcio intercambiable (meq/100 g)", row["calcio"]],
 ])
 
 mostrar_tabla("⚠️ Sales y otros parámetros", [
-    ["Sodio", row["sodio"]],
-    ["Cloruro (extracto)", row["cloruro_extracto"]],
-    ["Cloruro (suelo seco)", row["cloruro_suelo_seco"]],
+    ["Sodio intercambiable (meq/100 g)", row["sodio"]],
+    ["Cloruro soluble en el extracto de saturación (meq/l)", row["cloruro_extracto"]],
+    ["Cloruro soluble en el extracto de saturación, referido a suelo seco (p.p.m.)", row["cloruro_suelo_seco"]],
     ["EAS", row["eas"]],
     ["Boro", row["boro"]],
 ])
