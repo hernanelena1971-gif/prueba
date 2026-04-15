@@ -72,7 +72,35 @@ st.session_state.setdefault("sitio_id", None)
 # CSS institucional y login
 # ==================================================
 if st.session_state.session is None:
-
+    
+    st.html(
+        """
+        <style>
+          .header-logos {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+          }
+    
+          .header-logos img {
+            height: 60px;
+          }
+    
+          .header-divider {
+            border-top: 1px solid #d0d0d0;
+            margin: 0.5rem 0 1.5rem 0;
+          }
+        </style>
+    
+        <div class="header-logos">
+          <img src="app/static/logo_inta.png" alt="INTA">
+          <img src="app/static/logo_argeninta.png" alt="Argentina / INTA">
+        </div>
+    
+        <div class="header-divider"></div>
+        """
+    )
     # 🔹 HEADER + PRESENTACIÓN INSTITUCIONAL
     st.html(
         """
