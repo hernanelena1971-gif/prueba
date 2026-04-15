@@ -73,18 +73,19 @@ st.session_state.setdefault("sitio_id", None)
 # ==================================================
 if st.session_state.session is None:
 
-    # 🔹 LOGOS INSTITUCIONALES (forma CORRECTA en Streamlit)
     
-    
-    col_left, col_right = st.columns([1, 1])
+    # 🔹 HEADER INSTITUCIONAL – alineado a bordes, estilo PDF
+    col_left, col_center, col_right = st.columns([2, 6, 2])
     
     with col_left:
-        st.image("logo_inta.png", width=95)
+        st.image("logo_inta.png", width=110)
     
     with col_right:
-        st.image("logo_argeninta.png", width=115)
+        st.image("logo_argeninta.png", width=150)
     
     st.divider()
+        
+    
 
 
 
