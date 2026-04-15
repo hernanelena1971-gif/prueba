@@ -156,9 +156,9 @@ if st.session_state.session is None:
         <style>
           .inicio-container {
             background-color: #f5f7f6;
-            padding: 2.5rem 2rem;
+            padding: 1.1rem 1.4rem;
             border-radius: 10px;
-            margin-bottom: 2rem;
+            margin-bottom: 1.2rem;
             border-left: 6px solid #2e7d32;
           }
           .inicio-title {
@@ -176,7 +176,7 @@ if st.session_state.session is None:
           .inicio-text {
             font-size: 1.1rem;
             color: #333;
-            margin-top: 0.5rem;
+            margin-top: 1rem;
             line-height: 1.6;
             width: 100%;
           }
