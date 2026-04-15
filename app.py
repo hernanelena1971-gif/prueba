@@ -447,11 +447,23 @@ row = data[0]
 # ==================================================
 def mostrar_tabla(titulo, filas):
     st.subheader(titulo)
+
+    df = pd.DataFrame(filas, columns=["Parámetro", "Valor"])
+
     st.dataframe(
-        pd.DataFrame(filas, columns=["Parámetro", "Valor"]),
+        df,
         use_container_width=True,
-        hide_index=True
+        hide_index=True,
+        column_config={
+            "Parámetro": st.column_config.TextColumn(
+                width="medium"
+            ),
+            "Valor": st.column_config.TextColumn(
+                width="small"
+            ),
+        },
     )
+
 
 
 mostrar_tabla("📋 Información general", [
