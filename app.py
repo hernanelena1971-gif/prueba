@@ -178,7 +178,7 @@ if st.session_state.session is None:
             color: #333;
             margin-top: 1rem;
             line-height: 1.6;
-            max-width: 900px;
+            width: 100%;
           }
           .inicio-separador {
             margin: 1.5rem 0;
