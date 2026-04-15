@@ -496,6 +496,7 @@ mostrar_tabla("🌱 Fertilidad y nutrientes", [
     ["Fósforo Extractable (p.p.m.) ", row["fosforo"]],
     ["Potasio intercambiable (meq/100 g)", row["potasio"]],
     ["Calcio intercambiable (meq/100 g)", row["calcio"]],
+    ["Magnesio Intercambiable (meq/100 g)", row["magnesio"]],
 ])
 
 mostrar_tabla("⚠️ Sales y otros parámetros", [
