@@ -30,7 +30,14 @@ def logo_con_alto(path, alto_px):
     img = PILImage.open(path)
     w, h = img.size
     nuevo_ancho = int((alto_px / h) * w)
-    return img.resize((nuevo_ancho, alto_px), PILImage.LANCZOS)
+
+    try:
+        resample = PILImage.Resampling.LANCZOS  # Pillow >= 10
+    except AttributeError:
+        resample = PILImage.LANCZOS  # Pillow < 10
+
+    return img.resize((nuevo_ancho, alto_px), resample)
+
 
 
 
