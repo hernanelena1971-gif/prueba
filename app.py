@@ -493,7 +493,7 @@ mostrar_tabla("🌱 Fertilidad y nutrientes", [
     ["Materia orgánica (%)", row["materia_organica"]],
     ["Nitrógeno total (%)", row["nitrogeno_total"]],
     ["Relación C/N", row["relacion_cn"]],
-    ["Fósforo "Extractable (p.p.m.) ", row["fosforo"]],
+    ["Fósforo Extractable (p.p.m.) ", row["fosforo"]],
     ["Potasio intercambiable (meq/100 g)", row["potasio"]],
     ["Calcio intercambiable (meq/100 g)", row["calcio"]],
 ])
