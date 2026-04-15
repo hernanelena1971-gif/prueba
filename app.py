@@ -69,39 +69,22 @@ st.session_state.setdefault("sitio_id", None)
 
 
 # ==================================================
-# CSS institucional y login
+# PRESENTACIÓN INSTITUCIONAL + LOGIN
 # ==================================================
 if st.session_state.session is None:
-    
-    st.html(
-        """
-        <style>
-          .header-logos {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.2rem;
-          }
-    
-          .header-logos img {
-            height: 60px;
-          }
-    
-          .header-divider {
-            border-top: 1px solid #d0d0d0;
-            margin: 0.5rem 0 1.5rem 0;
-          }
-        </style>
-    
-        <div class="header-logos">
-          <img src="logo_inta.png" alt="INTA">
-          <img src="logo_argeninta.png" alt="Argentina / INTA">
-        </div>
-    
-        <div class="header-divider"></div>
-        """
-    )
-    # 🔹 HEADER + PRESENTACIÓN INSTITUCIONAL
+
+    # 🔹 LOGOS INSTITUCIONALES (forma CORRECTA en Streamlit)
+    col1, col2 = st.columns([1, 1])
+
+    with col1:
+        st.image("logo_inta.png", height=60)
+
+    with col2:
+        st.image("logo_argeninta.png", height=60)
+
+    st.divider()
+
+    # 🔹 PRESENTACIÓN INSTITUCIONAL
     st.html(
         """
         <style>
@@ -122,12 +105,14 @@ if st.session_state.session is None:
             font-size: 1.1rem;
             font-weight: 600;
             color: #2e7d32;
+            margin-bottom: 0.3rem;
           }
           .inicio-text {
             font-size: 0.95rem;
             color: #333;
             margin-top: 1rem;
             line-height: 1.6;
+            max-width: 900px;
           }
           .inicio-separador {
             margin: 1.5rem 0;
@@ -137,32 +122,32 @@ if st.session_state.session is None:
 
         <div class="inicio-container">
             <div class="inicio-title">
-              Sistema de Consulta de Análisis de Suelos
+                Sistema de Consulta de Análisis de Suelos
             </div>
 
             <div class="inicio-subtitle">
-              Laboratorio de Suelos, Agua y Fertilizantes – LabSAF
+                Laboratorio de Suelos, Agua y Fertilizantes – LabSAF
             </div>
             <div class="inicio-subtitle">
-              Grupo Recursos Naturales
+                Grupo Recursos Naturales
             </div>
             <div class="inicio-subtitle">
-              INTA – EEA Salta
+                INTA – EEA Salta
             </div>
 
             <div class="inicio-separador"></div>
 
             <div class="inicio-text">
-              Plataforma destinada a la consulta, visualización e interpretación de análisis de suelos,
-              agua y fertilizantes realizados por el Laboratorio de Suelos, Agua y Fertilizantes (LabSAF),
-              permitiendo el acceso a resultados analíticos, información geográfica de sitios de muestreo
-              y documentación técnica asociada.
+                Plataforma destinada a la consulta, visualización e interpretación de análisis de suelos,
+                agua y fertilizantes realizados por el Laboratorio de Suelos, Agua y Fertilizantes (LabSAF),
+                permitiendo el acceso a resultados analíticos, información geográfica de sitios de muestreo
+                y documentación técnica asociada.
             </div>
         </div>
         """
     )
 
-    # 🔐 LOGIN
+    # 🔹 LOGIN
     st.subheader("🔐 Acceso al sistema")
     email = st.text_input("Email")
     password = st.text_input("Contraseña", type="password")
@@ -174,7 +159,7 @@ if st.session_state.session is None:
             )
             st.session_state.session = res.session
             st.rerun()
-        except Exception as e:
+        except Exception:
             st.error("Error de login")
 
     st.stop()
