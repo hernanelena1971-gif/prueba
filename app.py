@@ -35,43 +35,73 @@ st.set_page_config(
 # ==================================================
 # CSS institucional
 # ==================================================
-st.markdown(
+st.html(
     """
     <style>
-    .inicio-container {
+      .inicio-container {
         background-color: #f5f7f6;
         padding: 2.5rem 2rem;
         border-radius: 10px;
         margin-bottom: 2rem;
         border-left: 6px solid #2e7d32;
-    }
-    .inicio-title {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
+      }
+
+      .inicio-title {
         font-size: 2.1rem;
         font-weight: 700;
         color: #1b5e20;
         margin-bottom: 0.6rem;
-    }
-    .inicio-subtitle {
+      }
+
+      .inicio-subtitle {
         font-size: 1.1rem;
         font-weight: 600;
         color: #2e7d32;
         margin-bottom: 0.3rem;
-    }
-    .inicio-text {
+      }
+
+      .inicio-text {
         font-size: 0.95rem;
         color: #333333;
         margin-top: 1rem;
-        line-height: 1.6;
         max-width: 900px;
-    }
-    .inicio-separador {
+        line-height: 1.6;
+      }
+
+      .inicio-separador {
         margin: 1.5rem 0;
         border-top: 1px solid #cfcfcf;
-    }
+      }
     </style>
-    """,
-    unsafe_allow_html=True
+
+    <div class="inicio-container">
+        <div class="inicio-title">
+            Sistema de Consulta de Análisis de Suelos
+        </div>
+
+        <div class="inicio-subtitle">
+            Laboratorio de Suelos, Agua y Fertilizantes – LabSAF
+        </div>
+        <div class="inicio-subtitle">
+            Grupo Recursos Naturales
+        </div>
+        <div class="inicio-subtitle">
+            INTA – EEA Salta
+        </div>
+
+        <div class="inicio-separador"></div>
+
+        <div class="inicio-text">
+            Plataforma destinada a la consulta, visualización e interpretación de análisis de suelos,
+            agua y fertilizantes realizados por el Laboratorio de Suelos, Agua y Fertilizantes (LabSAF),
+            permitiendo el acceso a resultados analíticos, información geográfica de sitios de muestreo
+            y documentación técnica asociada.
+        </div>
+    </div>
+    """
 )
+
 
 
 # ==================================================
