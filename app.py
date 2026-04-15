@@ -651,9 +651,8 @@ def generar_pdf_informe(row, codigo_sitio):
     # MISMAS SECCIONES QUE STREAMLIT
     # --------------------------------------------------
     tabla_pdf("Información general", [
-        ["Usuario", row["usuario"]],
-        ["Sitio", row["sitio"]],
         ["Fecha de muestreo", row["fecha_muestreo"]],
+        ["Sitio", row["sitio"]],       
         ["Número de laboratorio", row["numero_laboratorio"]],
         ["Profundidad", row["profundidad"]],
         ["Uso actual", row["uso_actual"]],
@@ -667,25 +666,25 @@ def generar_pdf_informe(row, codigo_sitio):
     ])
 
     tabla_pdf("Propiedades químicas", [
-        ["pH", row["ph"]],
-        ["Conductividad eléctrica", row["conductividad"]],
-        ["Carbonato Ca + Mg", row["carbonato_ca_mg"]],
+        ["pH en suspensión de suelo-agua 1:2.5", row["ph"]],
+        ["Conductividad eléctrica (mmhos/cm)", row["conductividad"]],
+        ["Carbonato de Calcio y Magnesio (%)", row["carbonato_ca_mg"]],
     ])
 
     tabla_pdf("Fertilidad y nutrientes", [
-        ["Carbono orgánico", row["carbono_organico"]],
-        ["Materia orgánica", row["materia_organica"]],
-        ["Nitrógeno total", row["nitrogeno_total"]],
+        ["Carbono orgánico (%)", row["carbono_organico"]],
+        ["Materia orgánica (%)", row["materia_organica"]],
+        ["Nitrógeno total (%)", row["nitrogeno_total"]],
         ["Relación C/N", row["relacion_cn"]],
-        ["Fósforo", row["fosforo"]],
-        ["Potasio", row["potasio"]],
-        ["Calcio", row["calcio"]],
+        ["Fósforo extractable (p.p.m.)", row["fosforo"]],
+        ["Potasio intercambiable (meq/100 g)", row["potasio"]],
+        ["Calcio intercambiable (meq/100 g)", row["calcio"]],
     ])
     elements.append(PageBreak())
     tabla_pdf("Sales y otros parámetros", [
-        ["Sodio", row["sodio"]],
-        ["Cloruro (extracto)", row["cloruro_extracto"]],
-        ["Cloruro (suelo seco)", row["cloruro_suelo_seco"]],
+        ["Sodio intercambiable (meq/100 g)", row["sodio"]],
+        ["Cloruro soluble en el extracto de saturación (meq/l)", row["cloruro_extracto"]],
+        ["Cloruro soluble en el extracto de saturación, referido a suelo seco (p.p.m.)", row["cloruro_suelo_seco"]],
         ["EAS", row["eas"]],
         ["Boro", row["boro"]],
     ])
